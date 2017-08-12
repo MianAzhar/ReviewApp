@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:weightSum="1"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.2"
+            android:src="@drawable/img_bg"
+            android:layout_gravity="center_vertical"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:orientation="vertical"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.45"
+                android:text="Restaurant Name"
+                android:textColor="@color/black"
+                 android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:textAlignment="textStart"
+                android:paddingLeft="3dp"
+                android:textStyle="bold"
+                android:id="@+id/name"
+                android:textSize="16dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.55"
+                android:text="Restaurant Address"
+                android:textColor="@color/black"
+                android:paddingLeft="3dp"
+                android:id="@+id/address"
+                android:textSize="15dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.4"
+            android:orientation="horizontal"
+            android:layout_marginRight="5dp"
+            android:weightSum="1">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:background="@drawable/button_bg"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dp"
+                android:textColor="@color/white"
+                android:text="RSVP"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:background="@drawable/standard_btn"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/white"
+                android:text="Decline"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

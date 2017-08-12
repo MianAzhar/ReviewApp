@@ -2,25 +2,41 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
+
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/top_ten"
+            android:icon="@drawable/top"
+            android:title="Top 10" />
+
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/invite_owner"
+            android:icon="@drawable/invite"
+            android:title="Owner Invite" />
+
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/invite_users"
+            android:icon="@drawable/invite"
+            android:title="Users Invite" />
+
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/my_reviews"
+            android:icon="@drawable/review"
+            android:title="My Reviews"/>
+
+        <item
+            android:id="@+id/my_events"
+            android:icon="@drawable/events"
+            android:title="My Events"/>
+
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/logout"
+            android:title="Logout"/>
+
+
     </group>
 
-    <item android:title="Communicate">
+    <item android:visible="false" android:title="Communicate">
         <menu>
             <item
                 android:id="@+id/nav_share"
