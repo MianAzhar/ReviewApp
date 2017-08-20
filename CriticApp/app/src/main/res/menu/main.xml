@@ -16,4 +16,19 @@
         android:textAllCaps="false"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/invite_critics"
+        android:title="Invite"
+        android:visible="false"
+        android:textAllCaps="false"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/filter"
+        android:title="Filter"
+        android:visible="false"
+        android:textAllCaps="false"
+        app:showAsAction="ifRoom"/>
+
+
 </menu>

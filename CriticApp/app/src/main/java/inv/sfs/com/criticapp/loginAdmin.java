@@ -7,9 +7,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class loginAdmin extends AppCompatActivity implements View.OnClickListener {
+public class loginAdmin extends AppCompatActivity implements View.OnClickListener{
 
-    Button signup_btn;
+    Button signup_btn, login_btn;
+    PrefrencesHelper preference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,15 +21,21 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
         getSupportActionBar().setTitle("Login");
         signup_btn = (Button) findViewById(R.id.signup);
         signup_btn.setOnClickListener(this);
+        login_btn = (Button) findViewById(R.id.login_btn);
+        login_btn.setOnClickListener(this);
+        preference = PrefrencesHelper.getInstance(this);
 
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(View v){
         if(v.getId() == signup_btn.getId()){
             Intent i = new Intent(this , signupAdmin.class);
             startActivity(i);
-
+        }else if(v.getId() == login_btn.getId()){
+            preference.setBoolObject("admin_logged_in" , true);
+            Intent i = new Intent(this , MainActivity.class);
+            startActivity(i);
         }
     }
 }

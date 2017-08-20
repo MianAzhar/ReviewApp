@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -24,44 +24,47 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class userInvites extends Fragment{
+public class allReviewsfrag extends Fragment {
 
-    public ListView user_invites;
+
+    ListView reviews_list;
     public ArrayList<String> restaurant_name =new ArrayList<String>();
+    public ArrayList<Float> rating_value=new ArrayList<Float>();
+    public ArrayList<Integer> rating_count=new ArrayList<Integer>();
     public ArrayList<String> address =new ArrayList<String>();
 
-    public userInvites() {
-
+    public allReviewsfrag() {
+        // Required empty public constructor
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.fragment_user_invites, container, false);
+        return inflater.inflate(R.layout.fragment_all_reviewsfrag, container, false);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState){
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("User Invites");
 
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setTitle("Critic Reviews");
 
         for(int i =0; i < 7 ; i++){
             restaurant_name.add("Restaurant Name");
-            address.add("Fri Chicks Wapda Town");
+            rating_value.add((float) 5);
+            rating_count.add(5);
+            address.add("Fri Chicks Wapda Town Round About Lahore Pakistan");
         }
 
-        user_invites = (ListView) getActivity().findViewById(R.id.user_invites);
-        pupulateAdapter();
-    }
 
-    private void pupulateAdapter(){
-        userinvitesadapter adapter = new userinvitesadapter(getActivity(), restaurant_name,address);
-        user_invites.setAdapter(adapter);
-        user_invites.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        reviews_list = (ListView) getView().findViewById(R.id.reviews_list);
+        reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), restaurant_name, rating_value,rating_count, address);
+        reviews_list.setAdapter(adapter);
+        reviews_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id){
@@ -69,9 +72,9 @@ public class userInvites extends Fragment{
                 String pos = String.valueOf(position);
 
 
-                userIvitesDetailsfrag userinvitedetails = new userIvitesDetailsfrag();
+                reviewDetailsfrag reviewdetails = new reviewDetailsfrag();
                 android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
-                trans1.replace(R.id.frame_container,userinvitedetails).addToBackStack(null).commit();
+                trans1.replace(R.id.frame_container,reviewdetails).addToBackStack(null).commit();
 
             }
         });
@@ -83,7 +86,7 @@ public class userInvites extends Fragment{
 
         menu.clear();
         inflater.inflate(R.menu.main, menu);
-        menu.findItem(R.id.invite_critics).setVisible(true);
+        menu.findItem(R.id.filter).setVisible(true);
         getActivity().invalidateOptionsMenu();
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -91,19 +94,21 @@ public class userInvites extends Fragment{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()) {
+        switch (item.getItemId()){
 
             case android.R.id.home:
                 getActivity().finish();
                 break;
-            case R.id.invite_critics:
-
-                inviteCriticsfrag addreview = new inviteCriticsfrag();
-                android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
-                trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
-
+            case R.id.filter:
+                /*FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                submitReviewfrag submitreview = new submitReviewfrag();
+                ft.replace(R.id.frame_container, submitreview);
+                ft.commit();*/
                 return  true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }

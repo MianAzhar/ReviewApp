@@ -4,6 +4,8 @@ package inv.sfs.com.criticapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,14 +55,16 @@ public class home extends Fragment implements View.OnClickListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()) {
+        switch (item.getItemId()){
 
             case android.R.id.home:
                 getActivity().finish();
                 break;
             case R.id.list:
-               Intent i = new Intent(getActivity() , allReviews.class);
-               startActivity(i);
+
+                allReviewsfrag allreviews = new allReviewsfrag();
+                android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
+                trans1.replace(R.id.frame_container,allreviews).addToBackStack(null).commit();
 
                 return  true;
         }

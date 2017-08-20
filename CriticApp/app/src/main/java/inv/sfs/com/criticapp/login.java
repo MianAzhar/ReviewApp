@@ -6,11 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class login extends AppCompatActivity implements View.OnClickListener {
 
 
-    Button signup_btn;
+    Button signup_btn, login_btn;
+    PrefrencesHelper preference;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -19,8 +21,14 @@ public class login extends AppCompatActivity implements View.OnClickListener {
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(this.getResources().getColor(R.color.app_basic_color)));
         getSupportActionBar().setTitle("Login");
 
+        preference = PrefrencesHelper.getInstance(this);
+
+
         signup_btn = (Button) findViewById(R.id.signup);
         signup_btn.setOnClickListener(this);
+
+        login_btn = (Button) findViewById(R.id.login_btn);
+        login_btn.setOnClickListener(this);
 
     }
 
@@ -28,6 +36,10 @@ public class login extends AppCompatActivity implements View.OnClickListener {
     public void onClick(View v) {
         if(v.getId() == signup_btn.getId()){
             Intent i = new Intent(this , signUp.class);
+            startActivity(i);
+        }else if(v.getId() == login_btn.getId()){
+            preference.setBoolObject("user_logged_in" , true);
+            Intent i = new Intent(this, MainActivity.class);
             startActivity(i);
         }
     }

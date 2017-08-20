@@ -8,7 +8,7 @@ import android.os.Bundle;
 public class spalsh extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spalsh);
         getSupportActionBar().hide();
@@ -17,8 +17,11 @@ public class spalsh extends AppCompatActivity {
         mHandler.postDelayed(new Runnable(){
             @Override
             public void run() {
-                Intent i = new Intent(getApplicationContext() , main_pg.class);
+                //Intent i = new Intent(getApplicationContext() , main_pg.class);
+                //startActivity(i);
+                Intent i = new Intent(getApplicationContext() , MainActivity.class);
                 startActivity(i);
+
             }
          }, 2000L);
 

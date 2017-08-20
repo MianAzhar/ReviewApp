@@ -1,0 +1,171 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="inv.sfs.com.criticapp.userIvitesDetailsfrag"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:weightSum="1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.2"
+            android:background="@drawable/circle_red"
+            android:text="20"
+            android:textAlignment="center"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:paddingLeft="2dp"
+            android:paddingTop="25dp"
+            android:layout_gravity="center_vertical"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.45"
+                android:text="Restaurant Name"
+                android:textColor="@color/black"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:textAlignment="textStart"
+                android:paddingLeft="3dp"
+                android:textStyle="bold"
+                android:id="@+id/name"
+                android:textSize="16dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.55"
+                android:text="Restaurant Address"
+                android:textColor="@color/black"
+                android:paddingLeft="3dp"
+                android:id="@+id/address"
+                android:textSize="15dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="#BABAC1"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:text="You are Invited to join other Critics to review the Above Restaurant:"
+        android:textSize="19dp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:text="Start Time 7:30PM"
+        android:textSize="19dp"
+        android:textStyle="bold"
+        android:textAlignment="center"/>
+
+    <LinearLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+         android:orientation="vertical"
+        android:background="@drawable/calendar"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MAR"
+            android:textAlignment="center"
+            android:textSize="17dp"
+            android:id="@+id/custom_month"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="17"
+            android:textAlignment="center"
+            android:paddingTop="2dp"
+            android:textSize="30dp"
+            android:id="@+id/custom_date"
+            android:textColor="@color/black"/>
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:text="Please RSVP if you are able to join us in the fun group Critic Review"
+        android:textSize="16dp"
+        android:textAlignment="center"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:text="RSVP"
+            android:textColor="@color/white"
+            android:id="@+id/rsvp"
+            android:textSize="20dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/button_bg"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:text="Decline"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/decline"
+            android:textSize="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_weight="0.5"
+            android:background="@drawable/standard_btn"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5px"
+        android:background="@drawable/ic_map"/>
+
+
+</LinearLayout>

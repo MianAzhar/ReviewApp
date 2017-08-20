@@ -38,12 +38,6 @@
             android:name=".main_pg"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".allReviews"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".reviewdetails"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".login"
             android:screenOrientation="portrait" />
         <activity
@@ -55,11 +49,5 @@
         <activity
             android:name=".signupAdmin"
             android:screenOrientation="portrait" />
-        <activity android:name=".addReview"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".submitReview"
-            android:screenOrientation="portrait">
-        </activity>
     </application>
-
 </manifest>
