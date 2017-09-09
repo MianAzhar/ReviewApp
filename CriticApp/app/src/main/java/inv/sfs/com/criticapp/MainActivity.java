@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle("Critic Review");
+        getSupportActionBar().setTitle("The Critics Review");
 
         preference = PrefrencesHelper.getInstance(this);
 
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity
             logout.setVisible(true);
 
             MenuItem be_critic = menu.findItem(R.id.be_critic);
-            be_critic.setVisible(false);
+            be_critic.setVisible(true);
 
             MenuItem admin_portal = menu.findItem(R.id.admin_portal);
             admin_portal.setVisible(false);
@@ -144,10 +144,6 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-
-
-
-
         home dashboard_fragment = new home();
         android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
         trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
@@ -161,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         if (fm.getBackStackEntryCount() > 0) {
             Log.i("MainActivity", "popping backstack");
             fm.popBackStack();
-        }else if (drawer.isDrawerOpen(GravityCompat.START)) {
+        }else if (drawer.isDrawerOpen(GravityCompat.START)){
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
@@ -222,8 +218,15 @@ public class MainActivity extends AppCompatActivity
             trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
 
         }else if(id == R.id.be_critic){
-            Intent i = new Intent(this,login.class);
-            startActivity(i);
+            if(preference.getBoolObject("user_logged_in")){
+                home dashboard_fragment = new home();
+                android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+                trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
+            }else{
+                Intent i = new Intent(this,login.class);
+                startActivity(i);
+            }
+
         }else if(id == R.id.admin_portal){
             Intent i = new Intent(this,loginAdmin.class);
             startActivity(i);

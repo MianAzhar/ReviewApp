@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -33,7 +34,7 @@ public class allReviewsfrag extends Fragment {
     public ArrayList<Integer> rating_count=new ArrayList<Integer>();
     public ArrayList<String> address =new ArrayList<String>();
 
-    public allReviewsfrag() {
+    public allReviewsfrag(){
         // Required empty public constructor
     }
 
@@ -62,7 +63,7 @@ public class allReviewsfrag extends Fragment {
 
 
         reviews_list = (ListView) getView().findViewById(R.id.reviews_list);
-        reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), restaurant_name, rating_value,rating_count, address);
+        reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), StorageHelper.restaurants_generic_list);
         reviews_list.setAdapter(adapter);
         reviews_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -70,13 +71,14 @@ public class allReviewsfrag extends Fragment {
                                     int position, long id){
                 // TODO Auto-generated method stub
                 String pos = String.valueOf(position);
-
-
+               //Toast.makeText(getActivity(), pos, Toast.LENGTH_SHORT).show();
+                Bundle bundle = new Bundle();
+                bundle.putString("position" , pos);
                 reviewDetailsfrag reviewdetails = new reviewDetailsfrag();
+                reviewdetails.setArguments(bundle);
                 android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
                 trans1.replace(R.id.frame_container,reviewdetails).addToBackStack(null).commit();
-
-            }
+             }
         });
     }
 
@@ -100,6 +102,8 @@ public class allReviewsfrag extends Fragment {
                 getActivity().finish();
                 break;
             case R.id.filter:
+                Intent i = new Intent(getActivity(), filter.class);
+                startActivity(i);
                 /*FragmentManager fm = getFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
                 submitReviewfrag submitreview = new submitReviewfrag();

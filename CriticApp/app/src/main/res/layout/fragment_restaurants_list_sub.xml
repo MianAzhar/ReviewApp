@@ -2,15 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="inv.sfs.com.criticapp.reviewDetailsfrag"
+    tools:context="inv.sfs.com.criticapp.restaurantsListSubFragment"
     android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
-
-    <ListView
+     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/reviews">
+        android:id="@+id/restaurants_list">
     </ListView>
 
- </LinearLayout>
+</LinearLayout>

@@ -40,7 +40,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState){
         setHasOptionsMenu(true);
          return inflater.inflate(R.layout.fragment_add_reviewfrag, container, false);
     }
@@ -62,7 +62,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         review_against.add("Server Attitude");
         review_against.add("Food Delivery");
         review_against.add("Order Accuracy");
-        review_against.add("Food Planting");
+        review_against.add("Food Plating");
         review_against.add("Taste Of Food");
         review_against.add("Noise Level");
         review_against.add("Lighting Level");
@@ -71,6 +71,9 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         review_against.add("Restroom Quality");
         review_against.add("Bill Service");
         review_against.add("Overall Appeal");
+        review_against.add("Delivery Time");
+        review_against.add("null");
+
 
         //Comments ArrayList//
 
@@ -92,6 +95,8 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         comments.add("Comment: Clean, Smelly, Dirty");
         comments.add("Comment: Long Wait, Quick");
         comments.add("Comment: Great Place, Love It");
+        comments.add("Comment: 30min etc.");
+        comments.add("null");
 
         dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -110,7 +115,6 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
                                     int position, long id){
                 // TODO Auto-generated method stub
                 String pos = String.valueOf(position);
-
             }
         });
     }

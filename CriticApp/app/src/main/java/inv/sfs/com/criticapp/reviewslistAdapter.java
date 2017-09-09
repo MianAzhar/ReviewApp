@@ -19,25 +19,17 @@ import java.util.List;
  * Created by iosdev-1 on 8/7/17.
  */
 
-public class reviewslistAdapter  extends ArrayAdapter<String> {
+public class reviewslistAdapter  extends ArrayAdapter<restaurants> {
 
     private final Activity context;
-    private final ArrayList<String> name_;
-    private final ArrayList<Float> rating_value_;
-    private final ArrayList<Integer> reviews_count_;
-    public final ArrayList<String> address_;
+    private final ArrayList<restaurants> restaurants_list_;
 
-
-
-    public reviewslistAdapter(Activity context, ArrayList<String> name ,ArrayList<Float> rating_value,ArrayList<Integer> reviews_count,ArrayList<String> address ) {
-        super(context, R.layout.reviewslistlayout, name);
+    public reviewslistAdapter(Activity context, ArrayList<restaurants> restaurants_list) {
+        super(context, R.layout.reviewslistlayout, restaurants_list);
         // TODO Auto-generated constructor stub
 
         this.context=context;
-        this.name_=name;
-        this.rating_value_=rating_value;
-        this.reviews_count_=reviews_count;
-        this.address_ = address;
+        this.restaurants_list_=restaurants_list;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -51,10 +43,14 @@ public class reviewslistAdapter  extends ArrayAdapter<String> {
          TextView address = (TextView) rowView.findViewById(R.id.address);
 
         try {
-            name.setText(name_.get(position));
-            rating_bar.setRating(rating_value_.get(position));
-            reviews_count.setText(reviews_count_.get(position));
-            address.setText(address_.get(position));
+            name.setText(restaurants_list_.get(position).restaurant_name);
+            rating_bar.setRating((float) 3.0);
+            reviews_count.setText("12");
+            if(restaurants_list_.get(position).vicinity.length() >50){
+                restaurants_list_.get(position).vicinity = restaurants_list_.get(position).vicinity.substring(0,50);
+                restaurants_list_.get(position).vicinity = restaurants_list_.get(position).vicinity+"...";
+            }
+            address.setText(restaurants_list_.get(position).vicinity);
         }catch (Exception e){
         }
 

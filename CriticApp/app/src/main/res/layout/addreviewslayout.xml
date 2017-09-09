@@ -35,6 +35,7 @@
                 android:paddingTop="3dp"
                 android:layout_weight="0.73"
                 android:orientation="horizontal"
+                android:id="@+id/stars_layout"
                 android:weightSum="1">
 
                 <TextView

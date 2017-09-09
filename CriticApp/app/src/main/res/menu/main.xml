@@ -30,5 +30,19 @@
         android:textAllCaps="false"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/done"
+        android:title="Done"
+        android:visible="false"
+        android:textAllCaps="false"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/refresh"
+        android:title=""
+        android:visible="false"
+        android:textAllCaps="false"
+        android:icon="@drawable/refresh"
+        app:showAsAction="ifRoom"/>
 
 </menu>

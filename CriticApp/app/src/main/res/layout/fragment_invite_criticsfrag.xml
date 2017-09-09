@@ -5,10 +5,91 @@
     tools:context="inv.sfs.com.criticapp.inviteCriticsfrag"
     android:orientation="vertical">
 
-    <ListView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/restaurants_list">
-    </ListView>
+        android:orientation="vertical"
+        android:weightSum="1">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.1"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:background="@color/app_basic_color"
+                android:orientation="horizontal"
+                android:id="@+id/map_view_lay"
+                >
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:src="@drawable/map_"
+                    android:id="@+id/mapview_img"
+                     />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="clip_horizontal|center_vertical"
+                    android:layout_weight="0.7"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:text="Map"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"
+                    android:id="@+id/map_view_text"
+                    />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:orientation="horizontal"
+                android:background="@color/light_bg"
+                android:id="@+id/list_view_lay"
+                >
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:src="@drawable/list_icon"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:id="@+id/list_view_image"
+                    />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="clip_horizontal|center_vertical"
+                    android:layout_weight="0.7"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:text="List"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"
+                    android:id="@+id/list_view_text" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.9"></android.support.v4.view.ViewPager>
+
+    </LinearLayout>
 </LinearLayout>
