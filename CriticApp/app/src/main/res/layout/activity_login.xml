@@ -29,6 +29,7 @@
         <EditText
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:id="@+id/username"
             android:layout_weight="0.9"
             android:background="@android:color/transparent"
             android:paddingLeft="10dp"
@@ -58,6 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.9"
+            android:id="@+id/password"
             android:background="@android:color/transparent"
             android:paddingLeft="10dp"
             android:hint="Password"/>

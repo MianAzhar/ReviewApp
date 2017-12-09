@@ -21,7 +21,8 @@ import java.util.ArrayList;
 
 public class HelperFunctions{
 
-    public static Integer PROXIMITY_RADIUS = 40234; //25 miles
+    //public static Integer PROXIMITY_RADIUS = 40234; //25 miles
+    public static Integer PROXIMITY_RADIUS = 8047; //5 miles
     public static String API_KEY = "AIzaSyB34u6YAzpHBnicod6dsRERE9wZVr7JW4Y";
     public static String places ="restaurant|cafe|meal_takeaway|meal_delivery";
 

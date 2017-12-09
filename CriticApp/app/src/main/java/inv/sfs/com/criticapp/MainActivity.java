@@ -15,7 +15,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -29,7 +32,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle("The Critics Review");
-
         preference = PrefrencesHelper.getInstance(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -41,6 +43,16 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //------------- Getting Navigation Top -----//
+        View navigation_header =  navigationView.getHeaderView(0);
+        TextView user_name = (TextView) navigation_header.findViewById(R.id.user_name);
+        TextView email_add = (TextView) navigation_header.findViewById(R.id.email);
+
+        try{
+            email_add.setText(ParseUser.getCurrentUser().getEmail());
+            user_name.setText(ParseUser.getCurrentUser().get("name").toString());
+        }catch (Exception e){
+        }
 
         //--- For without Login ---//
         Menu menu =navigationView.getMenu();
@@ -203,6 +215,8 @@ public class MainActivity extends AppCompatActivity
          }else if(id == R.id.logout){
             preference.setBoolObject("admin_logged_in" , false);
             preference.setBoolObject("user_logged_in" , false);
+            ParseUser.getCurrentUser().logOut();
+
             //finishAffinity();
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
