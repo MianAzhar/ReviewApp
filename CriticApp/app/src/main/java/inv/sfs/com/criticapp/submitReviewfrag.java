@@ -39,8 +39,8 @@ public class submitReviewfrag extends Fragment implements View.OnClickListener {
 
         yes_btn = (Button) getView().findViewById(R.id.yes_btn);
         no_btn = (Button) getView().findViewById(R.id.no_btn);
-        yes_btn.setOnClickListener(this);
-        no_btn.setOnClickListener(this);
+        //yes_btn.setOnClickListener(this);
+        //no_btn.setOnClickListener(this);
     }
 
     @Override

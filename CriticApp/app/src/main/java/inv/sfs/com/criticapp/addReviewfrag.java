@@ -34,6 +34,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
     public ArrayList<String> review_against =new ArrayList<String>();
     public ArrayList<String> comments =new ArrayList<String>();
     Dialog dialog;
+    Integer restaurantPosition;
 
     public addReviewfrag(){
     }
@@ -106,8 +107,10 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         instant_btn = (Button) getView().findViewById(R.id.instant_btn);
         instant_btn.setOnClickListener(this);
 
+        restaurantPosition = Integer.valueOf(getArguments().getString("position"));
+
         add_review_lv = (ListView) getView().findViewById(R.id.add_review_lv);
-        addReviewsAdapter adapter = new addReviewsAdapter(getActivity(), review_against,comments);
+        addReviewsAdapter adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition));
         add_review_lv.setAdapter(adapter);
         add_review_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override

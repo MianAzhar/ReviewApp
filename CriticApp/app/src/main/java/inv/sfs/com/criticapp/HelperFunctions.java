@@ -7,13 +7,14 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import inv.sfs.com.criticapp.Models.Restaurant;
 
 /**
  * Created by iosdev-1 on 8/29/17.
@@ -92,7 +93,7 @@ public class HelperFunctions{
         return returnedBitmap;
     }
 
-    public static Integer getIndex(ArrayList<restaurants> restaurants_list, String value){
+    public static Integer getIndex(ArrayList<Restaurant> restaurants_list, String value){
         for(int i = 0; i < restaurants_list.size() ;i++){
             if(restaurants_list.get(i).restaurant_name.equals(value)){
                 return i;
@@ -101,8 +102,8 @@ public class HelperFunctions{
         return 00000;
     }
 
-    public static ArrayList<restaurants> searchLocation(ArrayList<restaurants> restaurants_list, String value){
-        ArrayList<restaurants> restaurants_searched_list = new ArrayList<restaurants>();
+    public static ArrayList<Restaurant> searchLocation(ArrayList<Restaurant> restaurants_list, String value){
+        ArrayList<Restaurant> restaurants_searched_list = new ArrayList<Restaurant>();
         for(int i = 0; i < restaurants_list.size() ;i++){
             if(restaurants_list.get(i).restaurant_name.equalsIgnoreCase(value)){
                 restaurants_searched_list.add(restaurants_list.get(i));

@@ -1,32 +1,18 @@
 package inv.sfs.com.criticapp;
 
 
-import android.*;
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.InflateException;
@@ -38,26 +24,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -66,19 +44,21 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import inv.sfs.com.criticapp.Models.Restaurant;
 
 import static android.content.Context.LOCATION_SERVICE;
-import static inv.sfs.com.criticapp.R.drawable.map;
 
 
 /**
@@ -97,7 +77,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     HelperFunctions helperfunctions;
     private static View view;
     LocationManager locationManager;
-    public static ArrayList<restaurants> restaurants_list = new ArrayList<restaurants>();
+    public static ArrayList<Restaurant> restaurants_list = new ArrayList<Restaurant>();
     ImageView search_icon;
     EditText search_text;
     String search_text_st;
@@ -297,7 +277,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             JSONObject geometry = temp_Obj.getJSONObject("geometry");
             JSONObject location = geometry.getJSONObject("location");
 
-            restaurants temp_restaurant = new restaurants();
+            Restaurant temp_restaurant = new Restaurant();
             temp_restaurant.latitude = Double.valueOf(location.getString("lat"));
             temp_restaurant.longitude = Double.valueOf(location.getString("lng"));
             temp_restaurant.ID = temp_Obj.getString("id");
@@ -305,22 +285,65 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             temp_restaurant.restaurant_name = temp_Obj.getString("name");
             temp_restaurant.icon_url = temp_Obj.getString("icon");
             temp_restaurant.vicinity = temp_Obj.getString("vicinity");
+            temp_restaurant.avgRating = 0;
+            getParseRestaurant(temp_restaurant);
             restaurants_list.add(temp_restaurant);
         }
         PlotMap();
     }
 
+    public void getParseRestaurant(final Restaurant restaurant){
+        ParseQuery<ParseObject> parseQuery = new ParseQuery<>("Restaurant");
+        parseQuery.whereEqualTo("place_id", restaurant.PlaceId);
+
+        parseQuery.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e == null){
+                    if(objects.size() > 0) {
+                        restaurant.parseObject = objects.get(0);
+                        getReviews(restaurant);
+                    }
+                }
+            }
+        });
+    }
+
+    public void getReviews(final Restaurant restaurant){
+        ParseQuery<ParseObject> parseQuery = new ParseQuery<>("FullReview");
+        parseQuery.whereEqualTo("restaurantId", restaurant.parseObject);
+        parseQuery.include("userId");
+        parseQuery.setLimit(1000);
+
+        parseQuery.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                int sum = 0;
+                for(int i = 0; i < objects.size(); i++){
+                    sum += objects.get(i).getInt("averageRating");
+                }
+
+                restaurant.avgRating = sum / objects.size();
+                restaurant.reviews = objects;
+                PlotMap();
+            }
+        });
+    }
+
     public void PlotMap(){
+
+
         for (int i = 0; i < restaurants_list.size(); i++){
             marker = new MarkerOptions().position(new LatLng(restaurants_list.get(i).latitude, restaurants_list.get(i).longitude)).title(restaurants_list.get(i).restaurant_name);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(restaurants_list.get(i).latitude, restaurants_list.get(i).longitude)));
-            marker.icon(BitmapDescriptorFactory.fromBitmap(HelperFunctions.getMarkerBitmapFromView(R.drawable.marker_bg, getContext(), "10")));
+            marker.icon(BitmapDescriptorFactory.fromBitmap(HelperFunctions.getMarkerBitmapFromView(R.drawable.marker_bg, getContext(), String.valueOf(restaurants_list.get(i).avgRating))));
             mMap.addMarker(marker);
         }
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
         //StorageHelper.restaurants_generic_list.clear();
         StorageHelper.restaurants_generic_list = restaurants_list;
         pd.dismiss();
+
         //currentLatLong();
     }
 

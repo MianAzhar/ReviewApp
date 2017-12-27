@@ -85,7 +85,6 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
         Window window = dialog.getWindow();
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-
         position = Integer.valueOf(getArguments().getString("position"));
         start_date = (Button) dialog.findViewById(R.id.start_date);
         end_date = (Button) dialog.findViewById(R.id.end_date);
