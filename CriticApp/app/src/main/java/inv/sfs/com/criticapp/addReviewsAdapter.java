@@ -344,6 +344,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
     }
 
     private void saveReview(){
+        doWork();
+        /*
         ParseQuery<ParseObject> restaurantQuery = new ParseQuery<>("Restaurant");
         restaurantQuery.whereEqualTo("place_id", restaurant.PlaceId);
 
@@ -353,95 +355,161 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 if(e == null){
                     Toast.makeText(context, "Restaurant Found", Toast.LENGTH_LONG).show();
                 } else {
+                    Toast.makeText(context, "Restaurant Not found", Toast.LENGTH_LONG).show();
                     doWork();
                 }
             }
         });
+        */
     }
 
     private void doWork(){
-        Toast.makeText(context, "Restaurant Not found", Toast.LENGTH_LONG).show();
-        final ParseObject restaurantObj = new ParseObject("Restaurant");
-        restaurantObj.put("place_id", restaurant.PlaceId);
-        restaurantObj.put("id", restaurant.ID);
-        restaurantObj.put("latitude", restaurant.latitude);
-        restaurantObj.put("longitude", restaurant.longitude);
-        restaurantObj.put("name", restaurant.restaurant_name);
-        restaurantObj.put("vicinity", restaurant.vicinity);
-        restaurantObj.put("icon_url", restaurant.icon_url);
+        if(restaurant.parseObject != null){
+            Toast.makeText(context, "Restaurant Saved", Toast.LENGTH_LONG).show();
+            final ParseObject fullReviewObj = new ParseObject("FullReview");
 
-        ParseGeoPoint geoPoint = new ParseGeoPoint(restaurant.latitude, restaurant.longitude);
-        restaurantObj.put("location", geoPoint);
+            fullReviewObj.put("restaurantId", restaurant.parseObject);
+            fullReviewObj.put("userId", ParseUser.getCurrentUser());
+            fullReviewObj.put("delivery_time", fullReviewModel.delivery_time);
+            fullReviewObj.put("recommend_to_others", fullReviewModel.recommend_to_others);
+            fullReviewObj.put("comments", fullReviewModel.comments);
+            fullReviewObj.put("servers_name", fullReviewModel.servers_name);
 
-        restaurantObj.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Toast.makeText(context, "Restaurant Saved", Toast.LENGTH_LONG).show();
-                    final ParseObject fullReviewObj = new ParseObject("FullReview");
+            int sum = 0;
 
-                    fullReviewObj.put("restaurantId", restaurantObj);
-                    fullReviewObj.put("userId", ParseUser.getCurrentUser());
-                    fullReviewObj.put("delivery_time", fullReviewModel.delivery_time);
-                    fullReviewObj.put("recommend_to_others", fullReviewModel.recommend_to_others);
-                    fullReviewObj.put("comments", fullReviewModel.comments);
-                    fullReviewObj.put("servers_name", fullReviewModel.servers_name);
-
-                    int sum = 0;
-
-                    for(int i = 0; i < ratings.size() - 2; i++){
-                        sum += ratings.get(i).rated_value;
-                    }
-
-                    fullReviewModel.averageRating = sum / (ratings.size() - 2);
-                    fullReviewObj.put("averageRating", fullReviewModel.averageRating);
-
-                    fullReviewObj.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                Toast.makeText(context, "FullReview Saved", Toast.LENGTH_LONG).show();
-
-                                ParseUser currentUser = ParseUser.getCurrentUser();
-                                currentUser.setACL(new ParseACL(currentUser));
-                                currentUser.saveInBackground();
-
-                                ArrayList<ParseObject> allReviews = new ArrayList<>();
-
-                                for (int i = 0; i < ratings.size() - 2; i++) {
-                                    Rating rating = ratings.get(i);
-                                    ParseObject temp = new ParseObject("Rating");
-
-                                    temp.put("userId", ParseUser.getCurrentUser());
-                                    temp.put("restaurantId", restaurantObj);
-                                    temp.put("fullReviewId", fullReviewObj);
-                                    temp.put("rated_value", rating.rated_value);
-                                    temp.put("title", rating.title);
-                                    temp.put("comments", rating.comment);
-
-                                    allReviews.add(temp);
-                                }
-
-                                ParseObject.saveAllInBackground(allReviews, new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-                                            Toast.makeText(context, "Review Saved", Toast.LENGTH_LONG).show();
-                                        } else {
-                                            Toast.makeText(context, "Error Review saving", Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                });
-                            } else {
-                                Toast.makeText(context, "Error saving fullReview", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(context, "Error saving restaurant", Toast.LENGTH_LONG).show();
-                }
+            for(int i = 0; i < ratings.size() - 2; i++){
+                sum += ratings.get(i).rated_value;
             }
-        });
+
+            //fullReviewModel.averageRating = sum / (ratings.size() - 2);
+            fullReviewObj.put("averageRating", sum);
+
+            fullReviewObj.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(context, "FullReview Saved", Toast.LENGTH_LONG).show();
+
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        currentUser.setACL(new ParseACL(currentUser));
+                        currentUser.saveInBackground();
+
+                        ArrayList<ParseObject> allReviews = new ArrayList<>();
+
+                        for (int i = 0; i < ratings.size() - 2; i++) {
+                            Rating rating = ratings.get(i);
+                            ParseObject temp = new ParseObject("Rating");
+
+                            temp.put("userId", ParseUser.getCurrentUser());
+                            temp.put("restaurantId", restaurant.parseObject);
+                            temp.put("fullReviewId", fullReviewObj);
+                            temp.put("rated_value", rating.rated_value);
+                            temp.put("title", rating.title);
+                            temp.put("comments", rating.comment);
+
+                            allReviews.add(temp);
+                        }
+
+                        ParseObject.saveAllInBackground(allReviews, new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    Toast.makeText(context, "Review Saved", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(context, "Error Review saving", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    } else {
+                        Toast.makeText(context, "Error saving fullReview", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        } else {
+            final ParseObject restaurantObj = new ParseObject("Restaurant");
+            restaurantObj.put("place_id", restaurant.PlaceId);
+            restaurantObj.put("id", restaurant.ID);
+            restaurantObj.put("latitude", restaurant.latitude);
+            restaurantObj.put("longitude", restaurant.longitude);
+            restaurantObj.put("name", restaurant.restaurant_name);
+            restaurantObj.put("vicinity", restaurant.vicinity);
+            restaurantObj.put("icon_url", restaurant.icon_url);
+
+            ParseGeoPoint geoPoint = new ParseGeoPoint(restaurant.latitude, restaurant.longitude);
+            restaurantObj.put("location", geoPoint);
+
+            restaurantObj.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        restaurant.parseObject = restaurantObj;
+                        Toast.makeText(context, "Restaurant Saved", Toast.LENGTH_LONG).show();
+                        final ParseObject fullReviewObj = new ParseObject("FullReview");
+
+                        fullReviewObj.put("restaurantId", restaurantObj);
+                        fullReviewObj.put("userId", ParseUser.getCurrentUser());
+                        fullReviewObj.put("delivery_time", fullReviewModel.delivery_time);
+                        fullReviewObj.put("recommend_to_others", fullReviewModel.recommend_to_others);
+                        fullReviewObj.put("comments", fullReviewModel.comments);
+                        fullReviewObj.put("servers_name", fullReviewModel.servers_name);
+
+                        int sum = 0;
+
+                        for(int i = 0; i < ratings.size() - 2; i++){
+                            sum += ratings.get(i).rated_value;
+                        }
+
+                        //fullReviewModel.averageRating = sum / (ratings.size() - 2);
+                        fullReviewObj.put("averageRating", sum);
+
+                        fullReviewObj.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    Toast.makeText(context, "FullReview Saved", Toast.LENGTH_LONG).show();
+
+                                    ParseUser currentUser = ParseUser.getCurrentUser();
+                                    currentUser.setACL(new ParseACL(currentUser));
+                                    currentUser.saveInBackground();
+
+                                    ArrayList<ParseObject> allReviews = new ArrayList<>();
+
+                                    for (int i = 0; i < ratings.size() - 2; i++) {
+                                        Rating rating = ratings.get(i);
+                                        ParseObject temp = new ParseObject("Rating");
+
+                                        temp.put("userId", ParseUser.getCurrentUser());
+                                        temp.put("restaurantId", restaurantObj);
+                                        temp.put("fullReviewId", fullReviewObj);
+                                        temp.put("rated_value", rating.rated_value);
+                                        temp.put("title", rating.title);
+                                        temp.put("comments", rating.comment);
+
+                                        allReviews.add(temp);
+                                    }
+
+                                    ParseObject.saveAllInBackground(allReviews, new SaveCallback() {
+                                        @Override
+                                        public void done(ParseException e) {
+                                            if (e == null) {
+                                                Toast.makeText(context, "Review Saved", Toast.LENGTH_LONG).show();
+                                            } else {
+                                                Toast.makeText(context, "Error Review saving", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    Toast.makeText(context, "Error saving fullReview", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    } else {
+                        Toast.makeText(context, "Error saving restaurant", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+
     }
 
 }
