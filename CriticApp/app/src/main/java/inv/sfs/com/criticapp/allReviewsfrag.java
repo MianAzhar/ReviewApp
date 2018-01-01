@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import inv.sfs.com.criticapp.Models.Restaurant;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,9 +32,10 @@ public class allReviewsfrag extends Fragment {
 
     ListView reviews_list;
     public ArrayList<String> restaurant_name =new ArrayList<String>();
-    public ArrayList<Float> rating_value=new ArrayList<Float>();
-    public ArrayList<Integer> rating_count=new ArrayList<Integer>();
     public ArrayList<String> address =new ArrayList<String>();
+    public ArrayList<Restaurant> top10SortedRestaurants;
+    public ArrayList<Restaurant> top10SortedRestaurantsSublist;
+
 
     public allReviewsfrag(){
         // Required empty public constructor
@@ -54,16 +57,10 @@ public class allReviewsfrag extends Fragment {
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle("Critic Reviews");
 
-        for(int i =0; i < 7 ; i++){
-            restaurant_name.add("Restaurant Name");
-            rating_value.add((float) 5);
-            rating_count.add(5);
-            address.add("Fri Chicks Wapda Town Round About Lahore Pakistan");
-        }
-
-
+        top10SortedRestaurants = StorageHelper.sortforTop10(StorageHelper.restaurants_generic_list);
         reviews_list = (ListView) getView().findViewById(R.id.reviews_list);
-        reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), StorageHelper.restaurants_generic_list);
+        top10SortedRestaurantsSublist = new ArrayList<Restaurant>(top10SortedRestaurants.subList(0, 10));
+        reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), top10SortedRestaurantsSublist);
         reviews_list.setAdapter(adapter);
         reviews_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override

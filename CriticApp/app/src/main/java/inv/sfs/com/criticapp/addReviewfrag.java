@@ -18,9 +18,22 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.parse.ParseACL;
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+
+import inv.sfs.com.criticapp.Models.FullReviewModel;
+import inv.sfs.com.criticapp.Models.Rating;
+import inv.sfs.com.criticapp.Models.Restaurant;
 
 
 /**
@@ -30,11 +43,15 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
 
 
     ListView add_review_lv;
-    Button instant_btn;
+    Button instant_btn,submit_instant_zero_btn;
     public ArrayList<String> review_against =new ArrayList<String>();
     public ArrayList<String> comments =new ArrayList<String>();
     Dialog dialog;
     Integer restaurantPosition;
+    EditText instant_zero_comment;
+    Restaurant restaurant;
+    FullReviewModel fullReviewModel;
+    TransparentProgressDialog pd;
 
     public addReviewfrag(){
     }
@@ -104,6 +121,14 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         dialog.setContentView(R.layout.customdialogue);
         Window window = dialog.getWindow();
         window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        submit_instant_zero_btn = (Button) dialog.getWindow().findViewById(R.id.submit_instant_zero_btn);
+        submit_instant_zero_btn.setOnClickListener(this);
+        pd = new TransparentProgressDialog(getContext(), R.drawable.loader);
+        instant_zero_comment = (EditText) dialog.getWindow().findViewById(R.id.instant_zero_comment);
+
+
+
+
         instant_btn = (Button) getView().findViewById(R.id.instant_btn);
         instant_btn.setOnClickListener(this);
 
@@ -153,7 +178,102 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
     public void onClick(View v){
         if(v.getId() == instant_btn.getId()){
             dialog.show();
+        }else if(v.getId() == submit_instant_zero_btn.getId()){
+            if(instant_zero_comment.getText().equals("")){
+                Toast.makeText(getContext(), "Add comment to submit!!", Toast.LENGTH_SHORT).show();
+            }else{
+                doWork();
+            }
         }
     }
 
+    private void doWork(){
+
+
+        pd.show();
+        restaurant = StorageHelper.restaurants_generic_list.get(restaurantPosition);
+        if(restaurant.parseObject != null){
+            Toast.makeText(getContext(), "Restaurant Saved", Toast.LENGTH_LONG).show();
+            final ParseObject fullReviewObj = new ParseObject("FullReview");
+
+            fullReviewObj.put("restaurantId", restaurant.parseObject);
+            fullReviewObj.put("userId", ParseUser.getCurrentUser());
+            fullReviewObj.put("delivery_time", "00");
+            fullReviewObj.put("recommend_to_others", false);
+            fullReviewObj.put("comments", instant_zero_comment.getText().toString());
+            fullReviewObj.put("averageRating", 0);
+            fullReviewObj.put("instant_zero", true);
+
+            fullReviewObj.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(getContext(), "FullReview Saved", Toast.LENGTH_LONG).show();
+
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        currentUser.setACL(new ParseACL(currentUser));
+                        currentUser.saveInBackground();
+                        dialog.dismiss();
+                        pd.dismiss();
+                    } else {
+                        dialog.dismiss();
+                        pd.dismiss();
+                        Toast.makeText(getContext(), "Error saving fullReview", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        } else {
+            final ParseObject restaurantObj = new ParseObject("Restaurant");
+            restaurantObj.put("place_id", restaurant.PlaceId);
+            restaurantObj.put("id", restaurant.ID);
+            restaurantObj.put("latitude", restaurant.latitude);
+            restaurantObj.put("longitude", restaurant.longitude);
+            restaurantObj.put("name", restaurant.restaurant_name);
+            restaurantObj.put("vicinity", restaurant.vicinity);
+            restaurantObj.put("icon_url", restaurant.icon_url);
+
+            ParseGeoPoint geoPoint = new ParseGeoPoint(restaurant.latitude, restaurant.longitude);
+            restaurantObj.put("location", geoPoint);
+
+            restaurantObj.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        restaurant.parseObject = restaurantObj;
+                        Toast.makeText(getContext(), "Restaurant Saved", Toast.LENGTH_LONG).show();
+                        final ParseObject fullReviewObj = new ParseObject("FullReview");
+
+                        fullReviewObj.put("restaurantId", restaurantObj);
+                        fullReviewObj.put("userId", ParseUser.getCurrentUser());
+                        fullReviewObj.put("delivery_time", "00");
+                        fullReviewObj.put("recommend_to_others", false);
+                        fullReviewObj.put("comments", instant_zero_comment.getText().toString());
+                        fullReviewObj.put("averageRating", 0);
+                        fullReviewObj.put("instant_zero", true);
+
+                        fullReviewObj.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    Toast.makeText(getContext(), "FullReview Saved", Toast.LENGTH_LONG).show();
+
+                                    ParseUser currentUser = ParseUser.getCurrentUser();
+                                    currentUser.setACL(new ParseACL(currentUser));
+                                    currentUser.saveInBackground();
+                                    dialog.dismiss();
+                                    pd.dismiss();
+                                } else {
+                                    dialog.dismiss();
+                                    pd.dismiss();
+                                    Toast.makeText(getContext(), "Error saving fullReview", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    } else {
+                        Toast.makeText(getContext(), "Error saving restaurant", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+    }
 }

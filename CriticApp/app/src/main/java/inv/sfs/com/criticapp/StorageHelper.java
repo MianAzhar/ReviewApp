@@ -15,4 +15,23 @@ public class StorageHelper {
     public static ArrayList<String> filters_list = new ArrayList<String>();
     public static Boolean filter_results = false;
 
+
+
+    public static ArrayList<Restaurant> sortforTop10(ArrayList<Restaurant> array){
+
+        Restaurant temp = new Restaurant();
+        for(int i = 0; i < array.size()-1; i++ ){
+
+            for (int j = i + 1; j < array.size(); j++) {
+                if(array.get(i).rating_google < array.get(j).rating_google){
+                    temp = array.get(j);
+                    array.set(j , array.get(i));
+                    array.set(i ,temp);
+                }
+            }
+
+        }
+        return array;
+    }
+
 }

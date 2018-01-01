@@ -12,6 +12,7 @@ import java.util.List;
 public class Restaurant {
     public Double latitude;
     public Double longitude;
+    public Double rating_google;
     public String ID;
     public String PlaceId;
     public String icon_url;

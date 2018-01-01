@@ -154,7 +154,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
                 android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
                 trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
             }else{
-                Toast.makeText(getActivity(), "Please Login", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Please Login To Add Review", Toast.LENGTH_SHORT).show();
             }
         }else if(v.getId() == start_date.getId()){
             Calendar mcurrentTime = Calendar.getInstance();

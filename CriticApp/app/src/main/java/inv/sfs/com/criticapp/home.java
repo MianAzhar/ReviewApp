@@ -280,6 +280,13 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             Restaurant temp_restaurant = new Restaurant();
             temp_restaurant.latitude = Double.valueOf(location.getString("lat"));
             temp_restaurant.longitude = Double.valueOf(location.getString("lng"));
+
+            if (temp_Obj.has("rating")) {
+                temp_restaurant.rating_google = Double.valueOf(temp_Obj.getString("rating"));
+            }else{
+                temp_restaurant.rating_google = Double.valueOf("0.0");
+            }
+
             temp_restaurant.ID = temp_Obj.getString("id");
             temp_restaurant.PlaceId = temp_Obj.getString("place_id");
             temp_restaurant.restaurant_name = temp_Obj.getString("name");
