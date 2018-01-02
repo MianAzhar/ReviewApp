@@ -8,7 +8,6 @@
     tools:context="inv.sfs.com.criticapp.login">
 
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -31,6 +30,7 @@
             android:layout_height="match_parent"
             android:id="@+id/username"
             android:layout_weight="0.9"
+            android:inputType="textEmailAddress"
             android:background="@android:color/transparent"
             android:paddingLeft="10dp"
             android:hint="User Name"/>
@@ -60,6 +60,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.9"
             android:id="@+id/password"
+            android:inputType="textPassword"
             android:background="@android:color/transparent"
             android:paddingLeft="10dp"
             android:hint="Password"/>

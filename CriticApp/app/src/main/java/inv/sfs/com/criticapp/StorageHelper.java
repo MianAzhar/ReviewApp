@@ -23,7 +23,7 @@ public class StorageHelper {
         for(int i = 0; i < array.size()-1; i++ ){
 
             for (int j = i + 1; j < array.size(); j++) {
-                if(array.get(i).rating_google < array.get(j).rating_google){
+                if(array.get(i).avgRating < array.get(j).avgRating){
                     temp = array.get(j);
                     array.set(j , array.get(i));
                     array.set(i ,temp);

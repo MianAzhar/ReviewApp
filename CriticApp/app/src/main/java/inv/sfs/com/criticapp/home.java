@@ -87,6 +87,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     String next_pg_token = "";
     String searchText = null;
     int i = 0;
+    Boolean back_pressed = false;
 
     public home(){
         //Required empty public constructor
@@ -162,8 +163,51 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
                 return false;
             }
         });
+
+
+        this.getView().setFocusableInTouchMode(true);
+        this.getView().requestFocus();
+        this.getView().setOnKeyListener(new View.OnKeyListener()
+        {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event){
+
+                //This is the filter
+                if (event.getAction()!=KeyEvent.ACTION_DOWN)
+                    return true;
+                switch (keyCode){
+                    case KeyEvent.KEYCODE_BACK :
+                        // Toast.makeText(getActivity(), "1", Toast.LENGTH_SHORT).show();
+                        backPressed();
+                        break;
+                    case KeyEvent.KEYCODE_2 :
+                        //Toast.makeText(getActivity(), "2", Toast.LENGTH_SHORT).show();
+                        break;
+                    case KeyEvent.KEYCODE_3 :
+                        //Toast.makeText(getActivity(), "3", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
+
+    private void backPressed(){
+        if(!back_pressed){
+            Toast.makeText(getActivity(), "Press Again To Exit", Toast.LENGTH_SHORT).show();
+            back_pressed = true;
+            android.os.Handler mHandler = new android.os.Handler();
+            mHandler.postDelayed(new Runnable(){
+                @Override
+                public void run() {
+                    back_pressed = false;
+                }
+            }, 2000L);
+        }else{
+            getActivity().finishAffinity();
+        }
+    }
 
     public void getLastKnownLocation(){
         List<String> providers = locationManager.getProviders(true);
@@ -338,8 +382,6 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     }
 
     public void PlotMap(){
-
-
         for (int i = 0; i < restaurants_list.size(); i++){
             marker = new MarkerOptions().position(new LatLng(restaurants_list.get(i).latitude, restaurants_list.get(i).longitude)).title(restaurants_list.get(i).restaurant_name);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(restaurants_list.get(i).latitude, restaurants_list.get(i).longitude)));
@@ -347,11 +389,8 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             mMap.addMarker(marker);
         }
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
-        //StorageHelper.restaurants_generic_list.clear();
         StorageHelper.restaurants_generic_list = restaurants_list;
         pd.dismiss();
-
-        //currentLatLong();
     }
 
 

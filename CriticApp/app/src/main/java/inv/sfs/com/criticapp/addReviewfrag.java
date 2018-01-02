@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,14 +23,17 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
 import inv.sfs.com.criticapp.Models.Rating;
@@ -52,6 +56,10 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
     Restaurant restaurant;
     FullReviewModel fullReviewModel;
     TransparentProgressDialog pd;
+    Boolean editMode = false;
+    ParseObject fullReviewObject = null;
+    public ArrayList<Rating> editRatingObject = new ArrayList<Rating>();
+
 
     public addReviewfrag(){
     }
@@ -127,15 +135,84 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         instant_zero_comment = (EditText) dialog.getWindow().findViewById(R.id.instant_zero_comment);
 
 
-
-
         instant_btn = (Button) getView().findViewById(R.id.instant_btn);
         instant_btn.setOnClickListener(this);
 
         restaurantPosition = Integer.valueOf(getArguments().getString("position"));
 
+        checkforEditReview();
+
+    }
+
+
+    public void checkforEditReview(){
+
+        int reviewsListSize = StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.size();
+        for(int i = 0; i < reviewsListSize; i++){
+            ParseObject userStoredId = (ParseObject) StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.get(i).get("userId");
+            String currentUserId = ParseUser.getCurrentUser().getObjectId().toString();
+
+            if(userStoredId.getObjectId().equals(currentUserId)){
+                editMode = true;
+                fullReviewObject = (ParseObject) StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.get(i);
+                Toast.makeText(getContext(), "Edit Mode", Toast.LENGTH_SHORT).show();
+                getFullRatingRestaurant();
+                return;
+            }
+        }
+        populateAdapter();
+    }
+
+
+    public void getFullRatingRestaurant(){
+
+        pd.show();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Rating");
+        query.whereEqualTo("fullReviewId", fullReviewObject);
+        query.findInBackground(new FindCallback<ParseObject>(){
+            @Override
+            public void done(List<ParseObject> list, ParseException e){
+                if (e == null) {
+                    if (!list.isEmpty()){
+
+                        Rating tempObject;
+                        for (int i = 0; i < list.size(); i++){
+                            tempObject = new Rating();
+                            ParseObject parseObject = list.get(i);
+                            tempObject.parseObject = parseObject;
+                            tempObject.comment = parseObject.get("comments").toString();
+                            tempObject.rated_value = (int) parseObject.get("rated_value");
+                            tempObject.title = parseObject.get("title").toString();
+                            editRatingObject.add(tempObject);
+                        }
+
+                        tempObject = new Rating();
+                        tempObject.title = "Delivery Time";
+                        tempObject.comment = "Comment: 30min etc.";
+                        editRatingObject.add(tempObject);
+
+                        tempObject = new Rating();
+                        tempObject.title = "null";
+                        tempObject.comment = "null";
+                        editRatingObject.add(tempObject);
+
+                        pd.dismiss();
+                        populateAdapter();
+                    }else{
+                        Log.d("Result" , "Empty Class");
+                        pd.dismiss();
+                    }
+                } else {
+                    Log.d("Result" , "Some Exception");
+                    pd.dismiss();
+                }
+            }
+        });
+    }
+
+    public void populateAdapter(){
         add_review_lv = (ListView) getView().findViewById(R.id.add_review_lv);
-        addReviewsAdapter adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition));
+        addReviewsAdapter adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,editRatingObject,fullReviewObject);
         add_review_lv.setAdapter(adapter);
         add_review_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -147,12 +224,13 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         });
     }
 
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
 
         menu.clear();
         inflater.inflate(R.menu.main, menu);
-        menu.findItem(R.id.next).setVisible(true);
+        menu.findItem(R.id.next).setVisible(false);
         getActivity().invalidateOptionsMenu();
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -189,7 +267,6 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
 
     private void doWork(){
 
-
         pd.show();
         restaurant = StorageHelper.restaurants_generic_list.get(restaurantPosition);
         if(restaurant.parseObject != null){
@@ -215,6 +292,9 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
                         currentUser.saveInBackground();
                         dialog.dismiss();
                         pd.dismiss();
+                        Intent i = new Intent(getContext(), MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(i);
                     } else {
                         dialog.dismiss();
                         pd.dismiss();
@@ -262,6 +342,9 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
                                     currentUser.saveInBackground();
                                     dialog.dismiss();
                                     pd.dismiss();
+                                    Intent i = new Intent(getContext(), MainActivity.class);
+                                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(i);
                                 } else {
                                     dialog.dismiss();
                                     pd.dismiss();

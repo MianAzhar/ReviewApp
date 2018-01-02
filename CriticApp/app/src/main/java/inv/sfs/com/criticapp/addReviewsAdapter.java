@@ -1,6 +1,7 @@
 package inv.sfs.com.criticapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.text.Editable;
@@ -40,26 +41,45 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
     private final Activity context;
     private final ArrayList<String> name_;
     private final ArrayList<String> comments_;
-    private final ArrayList<Rating> ratings;
+    private ArrayList<Rating> ratings;
+    private final ArrayList<Rating> editRatingObject_;
     private final FullReviewModel fullReviewModel;
     private final Restaurant restaurant;
+    private final Boolean editMode_;
+    TransparentProgressDialog pd;
 
-    public addReviewsAdapter(Activity context, ArrayList<String> name, ArrayList<String> comments, Restaurant restaurant) {
+
+    public addReviewsAdapter(Activity context, ArrayList<String> name, ArrayList<String> comments, Restaurant restaurant,Boolean editMode,ArrayList<Rating> editRatingObject,ParseObject fullReviewModel) {
         super(context, R.layout.addreviewslayout, name);
         // TODO Auto-generated constructor stub
 
+        this.editMode_ = editMode;
         this.context=context;
         this.name_=name;
         this.comments_ = comments;
         this.ratings = new ArrayList<>();
+        this.editRatingObject_ = editRatingObject;
+        pd = new TransparentProgressDialog(context, R.drawable.loader);
 
         this.restaurant = restaurant;
-        fullReviewModel = new FullReviewModel();
+        this.fullReviewModel = new FullReviewModel();
+        this.fullReviewModel.parseObject = fullReviewModel;
 
-        for(int i = 0; i < name_.size(); i++){
-            Rating temp = new Rating();
-            temp.title = name_.get(i);
-            this.ratings.add(temp);
+        if(fullReviewModel != null){
+            this.fullReviewModel.delivery_time = fullReviewModel.get("delivery_time").toString();
+            this.fullReviewModel.recommend_to_others = fullReviewModel.getBoolean("recommend_to_others");
+            this.fullReviewModel.comments = fullReviewModel.getString("comments");
+            this.fullReviewModel.servers_name = fullReviewModel.getString("servers_name");
+        }
+
+        if(editMode_ && !fullReviewModel.getBoolean("instant_zero")){
+            this.ratings = editRatingObject_;
+        }else{
+            for(int i = 0; i < name_.size(); i++){
+                Rating temp = new Rating();
+                temp.title = name_.get(i);
+                this.ratings.add(temp);
+            }
         }
     }
 
@@ -196,9 +216,12 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 name.setText(name_.get(position));
                 comments_tv.setHint(comments_.get(position));
 
-                Rating temp = ratings.get(position);
-                comments_tv.setText(temp.comment);
-
+                if(position == name_.size() -2)
+                    comments_tv.setText(fullReviewModel.delivery_time);
+                else {
+                    Rating temp = ratings.get(position);
+                    comments_tv.setText(temp.comment);
+                }
             }catch (Exception e){
             }
 
@@ -365,8 +388,14 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
 
     private void doWork(){
         if(restaurant.parseObject != null){
+            pd.show();
+
             Toast.makeText(context, "Restaurant Saved", Toast.LENGTH_LONG).show();
-            final ParseObject fullReviewObj = new ParseObject("FullReview");
+            final ParseObject fullReviewObj;
+            if(fullReviewModel.parseObject == null)
+                fullReviewObj = new ParseObject("FullReview");
+            else
+                fullReviewObj = fullReviewModel.parseObject;
 
             fullReviewObj.put("restaurantId", restaurant.parseObject);
             fullReviewObj.put("userId", ParseUser.getCurrentUser());
@@ -400,13 +429,17 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                             Rating rating = ratings.get(i);
                             ParseObject temp = new ParseObject("Rating");
 
+                            if(rating.parseObject == null)
+                                temp = new ParseObject("Rating");
+                            else
+                                temp = rating.parseObject;
+
                             temp.put("userId", ParseUser.getCurrentUser());
                             temp.put("restaurantId", restaurant.parseObject);
                             temp.put("fullReviewId", fullReviewObj);
                             temp.put("rated_value", rating.rated_value);
                             temp.put("title", rating.title);
                             temp.put("comments", rating.comment);
-
                             allReviews.add(temp);
                         }
 
@@ -415,17 +448,26 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                             public void done(ParseException e) {
                                 if (e == null) {
                                     Toast.makeText(context, "Review Saved", Toast.LENGTH_LONG).show();
+                                    pd.dismiss();
+                                    Intent i = new Intent(getContext(), MainActivity.class);
+                                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    context.startActivity(i);
+
                                 } else {
+                                    pd.dismiss();
                                     Toast.makeText(context, "Error Review saving", Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
                     } else {
+                        pd.dismiss();
                         Toast.makeText(context, "Error saving fullReview", Toast.LENGTH_LONG).show();
                     }
                 }
             });
         } else {
+            pd.show();
+
             final ParseObject restaurantObj = new ParseObject("Restaurant");
             restaurantObj.put("place_id", restaurant.PlaceId);
             restaurantObj.put("id", restaurant.ID);
@@ -438,9 +480,9 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
             ParseGeoPoint geoPoint = new ParseGeoPoint(restaurant.latitude, restaurant.longitude);
             restaurantObj.put("location", geoPoint);
 
-            restaurantObj.saveInBackground(new SaveCallback() {
+            restaurantObj.saveInBackground(new SaveCallback(){
                 @Override
-                public void done(ParseException e) {
+                public void done(ParseException e){
                     if (e == null) {
                         restaurant.parseObject = restaurantObj;
                         Toast.makeText(context, "Restaurant Saved", Toast.LENGTH_LONG).show();
@@ -488,22 +530,29 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                                         allReviews.add(temp);
                                     }
 
-                                    ParseObject.saveAllInBackground(allReviews, new SaveCallback() {
+                                    ParseObject.saveAllInBackground(allReviews, new SaveCallback(){
                                         @Override
-                                        public void done(ParseException e) {
+                                        public void done(ParseException e){
                                             if (e == null) {
                                                 Toast.makeText(context, "Review Saved", Toast.LENGTH_LONG).show();
+                                                pd.dismiss();
+                                                Intent i = new Intent(getContext(), MainActivity.class);
+                                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                context.startActivity(i);
                                             } else {
+                                                pd.dismiss();
                                                 Toast.makeText(context, "Error Review saving", Toast.LENGTH_LONG).show();
                                             }
                                         }
                                     });
                                 } else {
+                                    pd.dismiss();
                                     Toast.makeText(context, "Error saving fullReview", Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
                     } else {
+                        pd.dismiss();
                         Toast.makeText(context, "Error saving restaurant", Toast.LENGTH_LONG).show();
                     }
                 }

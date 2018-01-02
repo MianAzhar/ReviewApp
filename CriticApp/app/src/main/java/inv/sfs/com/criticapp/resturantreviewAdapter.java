@@ -104,6 +104,7 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
             TextView score = (TextView)rowView.findViewById(R.id.userScore);
             try {
                 ParseObject review = currentRestaurant.reviews.get(position - 1);
+               // review = review.fetch();
                 ParseObject userObj = review.getParseObject("userId");
                 name.setText(userObj.getString("name"));
                 float star = ((float)review.getInt("averageRating")) / 90 * 5;
