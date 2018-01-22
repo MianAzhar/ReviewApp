@@ -11,11 +11,11 @@
         android:id="@+id/parent_lay"
         android:background="@drawable/marker_bg">
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/rating_value"
             android:text="12"
-            android:paddingLeft="12px"
+            android:textAlignment="center"
             android:paddingTop="7px"
             android:textColor="@color/white"/>
     </LinearLayout>

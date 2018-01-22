@@ -2,34 +2,45 @@ package inv.sfs.com.criticapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.GetCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
 import inv.sfs.com.criticapp.Models.Rating;
 import inv.sfs.com.criticapp.Models.Restaurant;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by iosdev-1 on 8/9/17.
@@ -47,6 +58,9 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
     private final Restaurant restaurant;
     private final Boolean editMode_;
     TransparentProgressDialog pd;
+    float finalRating_value = 0;
+    public ImageView image_iv;
+    private static final int SELECT_PICTURE = 1;
 
 
     public addReviewsAdapter(Activity context, ArrayList<String> name, ArrayList<String> comments, Restaurant restaurant,Boolean editMode,ArrayList<Rating> editRatingObject,ParseObject fullReviewModel) {
@@ -94,10 +108,48 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
 
             yes_btn = (Button) rowView.findViewById(R.id.yes_btn);
             no_btn = (Button) rowView.findViewById(R.id.no_btn);
-
             final EditText overAllComments = (EditText)rowView.findViewById(R.id.overallComments);
             final EditText serversName = (EditText)rowView.findViewById(R.id.serverName);
             final Button submitBtn = (Button)rowView.findViewById(R.id.submit);
+            final LinearLayout be_a_critic_lay = (LinearLayout)rowView.findViewById(R.id.be_a_critic_lay);
+            final LinearLayout submitRevierContainor = (LinearLayout) rowView.findViewById(R.id.submitRevierContainor);
+            image_iv = (ImageView)rowView.findViewById(R.id.image_iv);
+
+            if(StorageHelper.uiBlock){
+
+                overAllComments.setFocusable(false);
+                serversName.setFocusable(false);
+
+                be_a_critic_lay.setVisibility(View.GONE);
+                be_a_critic_lay.setFocusable(false);
+                be_a_critic_lay.setEnabled(false);
+                be_a_critic_lay.setFocusableInTouchMode(false);
+
+                submitBtn.setVisibility(View.GONE);
+                submitBtn.setFocusable(false);
+                submitBtn.setEnabled(false);
+                submitBtn.setFocusableInTouchMode(false);
+
+                yes_btn.setFocusable(false);
+                yes_btn.setEnabled(false);
+                yes_btn.setFocusableInTouchMode(false);
+
+                no_btn.setFocusable(false);
+                no_btn.setEnabled(false);
+                no_btn.setFocusableInTouchMode(false);
+
+                image_iv.setFocusable(false);
+                image_iv.setEnabled(false);
+                image_iv.setFocusableInTouchMode(false);
+
+            }
+
+
+            image_iv.setImageBitmap(StorageHelper.bitmapImageFile);
+            if(StorageHelper.bitmapImageFile != null){
+                image_iv.getLayoutParams().height = 800;
+                image_iv.getLayoutParams().width = 800;
+            }
 
             if(fullReviewModel.comments != null)
                 overAllComments.setText(fullReviewModel.comments);
@@ -105,19 +157,19 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
             if(fullReviewModel.servers_name != null)
                 serversName.setText(fullReviewModel.servers_name);
 
-            overAllComments.addTextChangedListener(new TextWatcher() {
+            overAllComments.addTextChangedListener(new TextWatcher(){
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                public void beforeTextChanged(CharSequence s, int start, int count, int after){
 
                 }
 
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                public void onTextChanged(CharSequence s, int start, int before, int count){
 
                 }
 
                 @Override
-                public void afterTextChanged(Editable s) {
+                public void afterTextChanged(Editable s){
                     fullReviewModel.comments = s.toString();
                 }
             });
@@ -145,6 +197,19 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                     saveReview();
                 }
             });
+
+
+            be_a_critic_lay.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    context.startActivityForResult(Intent.createChooser(intent,
+                            "Select Picture"), SELECT_PICTURE);
+                }
+            });
+
 
             if(fullReviewModel.recommend_to_others){
                 yes_btn.setBackground(getContext().getResources().getDrawable(R.drawable.standard_btn));
@@ -184,6 +249,7 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
             rowView = inflater.inflate(R.layout.addreviewslayout, null,true);
 
             LinearLayout stars_layout = (LinearLayout) rowView.findViewById(R.id.stars_layout);
+            LinearLayout stars_layout_overall_apeal = (LinearLayout) rowView.findViewById(R.id.stars_layout_overall_apeal);
             TextView name = (TextView) rowView.findViewById(R.id.review_against);
             EditText comments_tv = (EditText) rowView.findViewById(R.id.comments_tv);
             final TextView tv_one = (TextView) rowView.findViewById(R.id.tv_one);
@@ -191,6 +257,75 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
             final TextView tv_three = (TextView) rowView.findViewById(R.id.tv_three);
             final TextView tv_four = (TextView) rowView.findViewById(R.id.tv_four);
             final TextView tv_five = (TextView) rowView.findViewById(R.id.tv_five);
+            final RatingBar rating_bar_overall_appeal = (RatingBar) rowView.findViewById(R.id.rating_bar_overall_appeal);
+
+
+            if(StorageHelper.uiBlock){
+
+                stars_layout.setFocusable(false);
+                stars_layout_overall_apeal.setFocusable(false);
+                name.setFocusable(false);
+                comments_tv.setFocusable(false);
+                tv_one.setFocusable(false);
+                tv_one.setEnabled(false);
+                tv_one.setFocusableInTouchMode(false);
+
+                tv_two.setFocusable(false);
+                tv_two.setEnabled(false);
+                tv_two.setFocusableInTouchMode(false);
+
+                tv_three.setFocusable(false);
+                tv_three.setEnabled(false);
+                tv_three.setFocusableInTouchMode(false);
+
+                tv_four.setFocusable(false);
+                tv_four.setEnabled(false);
+                tv_four.setFocusableInTouchMode(false);
+
+                tv_five.setFocusable(false);
+                tv_five.setEnabled(false);
+                tv_five.setFocusableInTouchMode(false);
+
+                rating_bar_overall_appeal.setFocusable(false);
+                rating_bar_overall_appeal.setEnabled(false);
+
+
+                /*be_a_critic_lay.setFocusable(false);
+                be_a_critic_lay.setEnabled(false);
+                be_a_critic_lay.setFocusableInTouchMode(false);
+
+                submitBtn.setFocusable(false);
+                submitBtn.setEnabled(false);
+                submitBtn.setFocusableInTouchMode(false);
+
+                yes_btn.setFocusable(false);
+                yes_btn.setEnabled(false);
+                yes_btn.setFocusableInTouchMode(false);
+
+                no_btn.setFocusable(false);
+                no_btn.setEnabled(false);
+                no_btn.setFocusableInTouchMode(false);
+
+                image_iv.setFocusable(false);
+                image_iv.setEnabled(false);
+                image_iv.setFocusableInTouchMode(false);*/
+
+            }
+
+
+
+            rating_bar_overall_appeal.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener(){
+                public void onRatingChanged(RatingBar ratingBar, float rating,
+                                            boolean fromUser){
+                    finalRating_value = rating;
+                }
+            });
+
+
+            /*if(position == 17){
+                stars_layout.setVisibility(View.GONE);
+                stars_layout_overall_apeal.setVisibility(View.VISIBLE);
+            }*/
 
             if(position == name_.size() -2){
                 stars_layout.setVisibility(View.GONE);
@@ -198,19 +333,44 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
             } else {
                 TextView currentView;
                 Rating temp = ratings.get(position);
-                if(temp.rated_value == 5)
-                    currentView = tv_five;
-                else if(temp.rated_value == 4)
-                    currentView = tv_four;
-                else if(temp.rated_value == 3)
-                    currentView = tv_three;
-                else if(temp.rated_value == 2)
-                    currentView = tv_two;
-                else
-                    currentView = tv_one;
 
-                currentView.setBackground(getContext().getResources().getDrawable(R.drawable.circle_red));
-                currentView.setTextColor(getContext().getResources().getColor(R.color.white));
+
+                if(position == 17){
+                    stars_layout.setVisibility(View.GONE);
+                    stars_layout_overall_apeal.setVisibility(View.VISIBLE);
+
+                    if(temp.rated_value == 5)
+                        rating_bar_overall_appeal.setRating(5);
+                    else if(temp.rated_value == 4)
+                        rating_bar_overall_appeal.setRating(4);
+                    else if(temp.rated_value == 3)
+                        rating_bar_overall_appeal.setRating(3);
+                    else if(temp.rated_value == 2)
+                        rating_bar_overall_appeal.setRating(2);
+                    else if(temp.rated_value == 1)
+                        rating_bar_overall_appeal.setRating(1);
+                    else if(temp.rated_value == 0)
+                        rating_bar_overall_appeal.setRating(0);
+                    else
+                        rating_bar_overall_appeal.setRating(0);
+
+                }else{
+
+                    if(temp.rated_value == 5)
+                        currentView = tv_five;
+                    else if(temp.rated_value == 4)
+                        currentView = tv_four;
+                    else if(temp.rated_value == 3)
+                        currentView = tv_three;
+                    else if(temp.rated_value == 2)
+                        currentView = tv_two;
+                    else
+                        currentView = tv_one;
+
+                    currentView.setBackground(getContext().getResources().getDrawable(R.drawable.circle_red));
+                    currentView.setTextColor(getContext().getResources().getColor(R.color.white));
+
+                }
             }
             try {
                 name.setText(name_.get(position));
@@ -366,6 +526,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
         return rowView;
     }
 
+
+
     private void saveReview(){
         doWork();
         /*
@@ -403,6 +565,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
             fullReviewObj.put("recommend_to_others", fullReviewModel.recommend_to_others);
             fullReviewObj.put("comments", fullReviewModel.comments);
             fullReviewObj.put("servers_name", fullReviewModel.servers_name);
+            fullReviewObj.put("overall_Rating", finalRating_value);
+
 
             int sum = 0;
 
@@ -434,16 +598,22 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                             else
                                 temp = rating.parseObject;
 
+
                             temp.put("userId", ParseUser.getCurrentUser());
                             temp.put("restaurantId", restaurant.parseObject);
                             temp.put("fullReviewId", fullReviewObj);
-                            temp.put("rated_value", rating.rated_value);
+
+                            if(i == 17)
+                                temp.put("rated_value", finalRating_value);
+                            else
+                                temp.put("rated_value", rating.rated_value);
+
                             temp.put("title", rating.title);
                             temp.put("comments", rating.comment);
                             allReviews.add(temp);
                         }
 
-                        ParseObject.saveAllInBackground(allReviews, new SaveCallback() {
+                        ParseObject.saveAllInBackground(allReviews, new SaveCallback(){
                             @Override
                             public void done(ParseException e) {
                                 if (e == null) {
@@ -494,6 +664,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                         fullReviewObj.put("recommend_to_others", fullReviewModel.recommend_to_others);
                         fullReviewObj.put("comments", fullReviewModel.comments);
                         fullReviewObj.put("servers_name", fullReviewModel.servers_name);
+                        fullReviewObj.put("overall_Rating", finalRating_value);
+                        fullReviewObj.put("Image", StorageHelper.parseImageFile);
 
                         int sum = 0;
 
@@ -523,7 +695,10 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                                         temp.put("userId", ParseUser.getCurrentUser());
                                         temp.put("restaurantId", restaurantObj);
                                         temp.put("fullReviewId", fullReviewObj);
-                                        temp.put("rated_value", rating.rated_value);
+                                        if(i == 17)
+                                            temp.put("rated_value", finalRating_value);
+                                        else
+                                            temp.put("rated_value", rating.rated_value);
                                         temp.put("title", rating.title);
                                         temp.put("comments", rating.comment);
 

@@ -7,6 +7,8 @@ import com.parse.ParseObject;
  */
 
 public class FullReviewModel {
+
+    public int overall_Rating;
     public String delivery_time;
     public boolean recommend_to_others;
     public String comments;

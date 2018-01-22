@@ -21,7 +21,8 @@
 
     <service
         android:name="inv.sfs.com.criticap.GPSTracker"
-        android:enabled="true"></service>
+        android:enabled="true">
+    </service>
 
     <application
         android:allowBackup="true"
@@ -30,6 +31,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

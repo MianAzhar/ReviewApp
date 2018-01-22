@@ -45,4 +45,11 @@
         android:icon="@drawable/refresh"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/mapView"
+        android:title="Map"
+        android:visible="false"
+        android:textAllCaps="false"
+        app:showAsAction="ifRoom"/>
+
 </menu>

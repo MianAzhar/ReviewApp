@@ -18,7 +18,7 @@ import inv.sfs.com.criticapp.Models.Restaurant;
  * Created by iosdev-1 on 8/7/17.
  */
 
-public class reviewslistAdapter  extends ArrayAdapter<Restaurant> {
+public class reviewslistAdapter  extends ArrayAdapter<Restaurant>{
 
     private final Activity context;
     private final ArrayList<Restaurant> restaurants_list_;

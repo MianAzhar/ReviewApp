@@ -3,6 +3,9 @@ package inv.sfs.com.criticapp;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,18 +29,23 @@ import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
 import inv.sfs.com.criticapp.Models.Rating;
 import inv.sfs.com.criticapp.Models.Restaurant;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -46,6 +54,9 @@ import inv.sfs.com.criticapp.Models.Restaurant;
 public class addReviewfrag extends Fragment implements View.OnClickListener {
 
 
+    private static final int SELECT_PICTURE = 1;
+    Uri selectedImageUri;
+    ParseFile parse_image_file = null;
     ListView add_review_lv;
     Button instant_btn,submit_instant_zero_btn;
     public ArrayList<String> review_against =new ArrayList<String>();
@@ -59,6 +70,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
     Boolean editMode = false;
     ParseObject fullReviewObject = null;
     public ArrayList<Rating> editRatingObject = new ArrayList<Rating>();
+    addReviewsAdapter adapter;
 
 
     public addReviewfrag(){
@@ -134,16 +146,25 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         pd = new TransparentProgressDialog(getContext(), R.drawable.loader);
         instant_zero_comment = (EditText) dialog.getWindow().findViewById(R.id.instant_zero_comment);
 
-
         instant_btn = (Button) getView().findViewById(R.id.instant_btn);
         instant_btn.setOnClickListener(this);
 
+        if(StorageHelper.uiBlock){
+            instant_btn.setVisibility(View.GONE);
+        }
+
         restaurantPosition = Integer.valueOf(getArguments().getString("position"));
-
         checkforEditReview();
-
     }
 
+    @Override
+    public void onResume(){
+        Log.e("DEBUG", "onResume of HomeFragment");
+        if(adapter != null){
+            adapter.notifyDataSetChanged();
+        }
+        super.onResume();
+    }
 
     public void checkforEditReview(){
 
@@ -212,7 +233,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
 
     public void populateAdapter(){
         add_review_lv = (ListView) getView().findViewById(R.id.add_review_lv);
-        addReviewsAdapter adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,editRatingObject,fullReviewObject);
+        adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,editRatingObject,fullReviewObject);
         add_review_lv.setAdapter(adapter);
         add_review_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -359,4 +380,6 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
             });
         }
     }
+
+
 }

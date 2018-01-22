@@ -33,7 +33,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import inv.sfs.com.criticapp.Models.FullReviewModel;
 
 
 /**
@@ -53,8 +59,11 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
     Dialog dialog;
     Button start_date, end_date;
     Integer position;
+    public List<ParseObject> fullreviews_ParseObjects;
+    //public List<Integer> ratingsCount = Arrays.asList(0, 0, 0, 0, 0);
+    public List<Integer> ratingsCount = new ArrayList<>();
 
-    public reviewDetailsfrag() {
+    public reviewDetailsfrag(){
     }
 
     @Override
@@ -72,13 +81,12 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle("Critic Scores");
 
+        ratingsCount.add(0);
+        ratingsCount.add(0);
+        ratingsCount.add(0);
+        ratingsCount.add(0);
+        ratingsCount.add(0);
         preference = PrefrencesHelper.getInstance(getActivity());
-        for(int i =0; i < 7 ; i++){
-            restaurant_name.add("Reviewer Name");
-            rating_value.add((float) 3.5);
-            comments.add("Good Taste a very nice place to be enjoyed it..");
-        }
-
         dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.filterdialogue);
@@ -86,6 +94,32 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         position = Integer.valueOf(getArguments().getString("position"));
+        fullreviews_ParseObjects = StorageHelper.restaurants_generic_list.get(position).reviews;
+
+        //Getting Over all Ratings..
+        for(int i = 0; i < fullreviews_ParseObjects.size(); i++ ){
+
+            if(fullreviews_ParseObjects.get(i).get("overall_Rating") != null){
+                int overall_rating_temp = (int) fullreviews_ParseObjects.get(i).get("overall_Rating");
+
+                if(overall_rating_temp == 1){
+                    ratingsCount.add(0 , ratingsCount.get(0) + 1);
+                }else if(overall_rating_temp == 2){
+                    ratingsCount.add(1 , ratingsCount.get(1) + 1);
+
+                }else if(overall_rating_temp == 3){
+                    ratingsCount.add(2 , ratingsCount.get(2) + 1);
+
+                }else if(overall_rating_temp == 4){
+                    ratingsCount.add(3 , ratingsCount.get(3) + 1);
+
+                }else if(overall_rating_temp == 5){
+                    ratingsCount.add(4 , ratingsCount.get(4) + 1);
+                }
+            }
+        }
+
+
         start_date = (Button) dialog.findViewById(R.id.start_date);
         end_date = (Button) dialog.findViewById(R.id.end_date);
         start_date.setOnClickListener(this);
@@ -102,7 +136,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
         //rating_bar = (RatingBar) getView().findViewById(R.id.rating_bar);
         //rating_bar.setRating((float) 3.5);
         reviews_lv = (ListView) getView().findViewById(R.id.reviews);
-        resturantreviewAdapter adapter = new resturantreviewAdapter(getActivity(), restaurant_name, rating_value, comments, position);
+        resturantreviewAdapter adapter = new resturantreviewAdapter(getActivity(), restaurant_name, rating_value, comments, position, ratingsCount);
         reviews_lv.setAdapter(adapter);
         reviews_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override

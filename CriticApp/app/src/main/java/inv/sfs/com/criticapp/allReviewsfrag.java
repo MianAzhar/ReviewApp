@@ -29,13 +29,11 @@ import inv.sfs.com.criticapp.Models.Restaurant;
  */
 public class allReviewsfrag extends Fragment {
 
-
     ListView reviews_list;
     public ArrayList<String> restaurant_name =new ArrayList<String>();
     public ArrayList<String> address =new ArrayList<String>();
     public ArrayList<Restaurant> top10SortedRestaurants;
     public ArrayList<Restaurant> top10SortedRestaurantsSublist;
-
 
     public allReviewsfrag(){
         // Required empty public constructor
@@ -44,14 +42,14 @@ public class allReviewsfrag extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState){
         // Inflate the layout for this fragment
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_all_reviewsfrag, container, false);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -86,6 +84,7 @@ public class allReviewsfrag extends Fragment {
         menu.clear();
         inflater.inflate(R.menu.main, menu);
         menu.findItem(R.id.filter).setVisible(true);
+        menu.findItem(R.id.mapView).setVisible(false);
         getActivity().invalidateOptionsMenu();
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -106,6 +105,13 @@ public class allReviewsfrag extends Fragment {
                 submitReviewfrag submitreview = new submitReviewfrag();
                 ft.replace(R.id.frame_container, submitreview);
                 ft.commit();*/
+                break;
+            case R.id.mapView:
+                home homepg = new home();
+                android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
+                trans1.replace(R.id.frame_container,homepg).addToBackStack(null).commit();
+
+
                 return  true;
         }
         return super.onOptionsItemSelected(item);

@@ -88,9 +88,10 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     String searchText = null;
     int i = 0;
     Boolean back_pressed = false;
+    private MarshMallowPermission marshMallowPermission;
+
 
     public home(){
-        //Required empty public constructor
     }
 
     @Override
@@ -116,10 +117,14 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+        marshMallowPermission = new MarshMallowPermission(getActivity());
         pd = new TransparentProgressDialog(getActivity(), R.drawable.loader);
         helperfunctions = new HelperFunctions();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             checkLocationPermission();
+            if(marshMallowPermission.checkPermissionForExternalStorage()){
+                marshMallowPermission.requestPermissionForExternalStorage(MarshMallowPermission.EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE_BY_LOAD_PROFILE);
+            }
         }
         search_icon = (ImageView) getActivity().findViewById(R.id.search_icon);
         search_icon.setOnClickListener(this);
@@ -444,22 +449,27 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
                 else{
                     Toast.makeText(getContext(),"Permission Denied" , Toast.LENGTH_LONG).show();
                 }
+
+            case MarshMallowPermission.EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE_BY_LOAD_PROFILE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+
+                }
         }
     }
 
-    public boolean checkLocationPermission(){
+    public void checkLocationPermission(){
         if(ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)  != PackageManager.PERMISSION_GRANTED ) {
             if (shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION)){
                 requestPermissions(new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION },REQUEST_LOCATION_CODE);
              } else {
                requestPermissions(new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION },REQUEST_LOCATION_CODE);
              }
-            return false;
-        }
-        else
-            return true;
-    }
 
+        }
+
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){

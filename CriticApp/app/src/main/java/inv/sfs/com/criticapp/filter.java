@@ -18,7 +18,7 @@ import android.widget.RadioGroup;
 public class filter extends AppCompatActivity implements View.OnClickListener{
 
     Button done_btn;
-    CheckBox rest_cbox,cafe_cbox,meal_takeaway_cbox,meal_delivery_cbox;
+    CheckBox rest_cbox,cafe_cbox,fastfood_cbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -34,42 +34,26 @@ public class filter extends AppCompatActivity implements View.OnClickListener{
 
         rest_cbox = (CheckBox) findViewById(R.id.rest_cbox);
         cafe_cbox = (CheckBox) findViewById(R.id.cafe_cbox);
-        meal_takeaway_cbox = (CheckBox) findViewById(R.id.meal_takeaway_cbox);
-        meal_delivery_cbox = (CheckBox) findViewById(R.id.meal_delivery_cbox);
+        fastfood_cbox = (CheckBox) findViewById(R.id.fastfood_cbox);
         StorageHelper.filters_list.clear();
 
 
-        meal_delivery_cbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+        fastfood_cbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(CompoundButton buttonView,boolean isChecked){
 
                  if(isChecked){
-                    if(StorageHelper.filters_list.indexOf("meal_delivery") == -1){
-                        StorageHelper.filters_list.add("meal_delivery");
+                    if(StorageHelper.filters_list.indexOf("fast_food") == -1){
+                        StorageHelper.filters_list.add("fas)_tfood");
                     }
                 }else{
-                    if(StorageHelper.filters_list.indexOf("meal_delivery") != -1){
-                        StorageHelper.filters_list.remove("meal_delivery");
+                    if(StorageHelper.filters_list.indexOf("fast_food") != -1){
+                        StorageHelper.filters_list.remove("fast_food");
                     }
                 }
             }
         });
 
-        meal_takeaway_cbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView,boolean isChecked){
-
-                if(isChecked){
-                    if(StorageHelper.filters_list.indexOf("meal_takeaway") == -1){
-                        StorageHelper.filters_list.add("meal_takeaway");
-                    }
-                 }else{
-                    if(StorageHelper.filters_list.indexOf("meal_takeaway") != -1){
-                       StorageHelper.filters_list.remove("meal_takeaway");
-                    }
-                }
-            }
-        });
 
         cafe_cbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
@@ -110,9 +94,9 @@ public class filter extends AppCompatActivity implements View.OnClickListener{
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         menu.clear();
-        inflater.inflate(R.menu.main, menu);
+        /*inflater.inflate(R.menu.main, menu);
         menu.findItem(R.id.done).setVisible(true);
-        this.invalidateOptionsMenu();
+        this.invalidateOptionsMenu();*/
         return true;
     }
 
@@ -121,12 +105,12 @@ public class filter extends AppCompatActivity implements View.OnClickListener{
             case android.R.id.home:
                 finish();
                 break;
-            case R.id.done:
+            /*case R.id.done:
                 StorageHelper.filter_results = true;
                 Intent i = new Intent(this , MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
-                return true;
+                return true;*/
         }
         return super.onOptionsItemSelected(item);
     }

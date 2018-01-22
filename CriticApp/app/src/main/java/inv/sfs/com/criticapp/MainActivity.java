@@ -2,6 +2,9 @@ package inv.sfs.com.criticapp;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,12 +21,21 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseFile;
 import com.parse.ParseUser;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     PrefrencesHelper preference;
+    private static final int SELECT_PICTURE = 1;
+    Uri selectedImageUri;
+    ParseFile parse_image_file = null;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -156,11 +168,73 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+
         home dashboard_fragment = new home();
         android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
         trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
 
     }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE) {
+                selectedImageUri = data.getData();
+
+                try {
+                    Bitmap bitmapImage =decodeBitmap(selectedImageUri);
+                    StorageHelper.bitmapImageFile = bitmapImage;
+                    //image_iv.setImageBitmap(bitmapImage);
+                    /*event_image_iv.setImageBitmap(bitmapImage);
+                    event_image_iv.getLayoutParams().height = 800;
+                    event_image_iv.getLayoutParams().width = 800;
+                    event_image_iv.setBackground(null);*/
+
+                    //--------- Generating Parse File ------------//
+
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    bitmapImage.compress(Bitmap.CompressFormat.PNG, 0, bos);
+                    byte[] bitmapdata = bos.toByteArray();
+                    parse_image_file = new ParseFile("loc_image.png", bitmapdata);
+                    StorageHelper.parseImageFile =  parse_image_file;
+
+                } catch (FileNotFoundException e){
+                    e.printStackTrace();
+                    Log.d("Result" , "Could not load image. Please try again");
+                    // Toast.makeText(this, "Could not load image. Please try again.", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        }
+    }
+
+
+
+    public Bitmap decodeBitmap(Uri selectedImage) throws FileNotFoundException{
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(this.getContentResolver().openInputStream(selectedImage), null, o);
+
+        final int REQUIRED_SIZE = 100;
+
+        int width_tmp = o.outWidth, height_tmp = o.outHeight;
+        int scale = 1;
+        while (true) {
+            if (width_tmp / 2 < REQUIRED_SIZE || height_tmp / 2 < REQUIRED_SIZE) {
+                break;
+            }
+            width_tmp /= 2;
+            height_tmp /= 2;
+            scale *= 2;
+        }
+
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        return BitmapFactory.decodeStream(this.getContentResolver().openInputStream(selectedImage), null, o2);
+    }
+
 
     @Override
     public void onBackPressed(){
