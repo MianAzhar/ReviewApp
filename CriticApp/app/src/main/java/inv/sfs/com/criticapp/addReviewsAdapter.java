@@ -191,7 +191,7 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 }
             });
 
-            submitBtn.setOnClickListener(new View.OnClickListener() {
+            submitBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
                     saveReview();

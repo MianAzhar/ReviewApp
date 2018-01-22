@@ -318,6 +318,10 @@ public class MainActivity extends AppCompatActivity
         }else if(id == R.id.admin_portal){
             Intent i = new Intent(this,loginAdmin.class);
             startActivity(i);
+        }else if(id == R.id.my_reviews){
+            myReviews myreviews = new myReviews();
+            android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+            trans1.replace(R.id.frame_container,myreviews).addToBackStack(null).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

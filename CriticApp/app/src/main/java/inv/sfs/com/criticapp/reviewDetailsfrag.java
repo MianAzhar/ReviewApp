@@ -141,14 +141,26 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
         reviews_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id){
-                // TODO Auto-generated method stub
-                String pos = String.valueOf(position);
-                //Intent i = new Intent(getApplicationContext() , reviewdetails.class);
-                //startActivity(i);
+                                    int pos, long id){
+                if(pos == 0){
+                    return;
+                }else{
+                    // TODO Auto-generated method stub
+                    String pos1 = String.valueOf(position);
+                    StorageHelper.uiBlock = true;
+                    Bundle bundle = new Bundle();
+                    bundle.putString("reataurant_name_st" , StorageHelper.restaurants_generic_list.get(position).restaurant_name);
+                    bundle.putString("total_rating_st" , String.valueOf(StorageHelper.restaurants_generic_list.get(position).avgRating));
+                    bundle.putFloat("total_rating_stars_float" , StorageHelper.restaurants_generic_list.get(position).avgRating / 90 * 5);
+                    bundle.putParcelable("fullReview" , StorageHelper.restaurants_generic_list.get(position).reviews.get(pos - 1));
+                    addReviewfrag addreview = new addReviewfrag();
+                    addreview.setArguments(bundle);
+                    android.support.v4.app.FragmentTransaction trans1 = ((AppCompatActivity) getContext()).getSupportFragmentManager()
+                            .beginTransaction();
+                    trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
+                }
             }
         });
-
     }
 
     @Override
@@ -182,7 +194,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View v){
-        if(v.getId() == be_a_critic_lay.getId()){
+       /* if(v.getId() == be_a_critic_lay.getId()){
             if(preference.getBoolObject("user_logged_in")){
                 addReviewfrag addreview = new addReviewfrag();
                 android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
@@ -190,7 +202,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
             }else{
                 Toast.makeText(getActivity(), "Please Login To Add Review", Toast.LENGTH_SHORT).show();
             }
-        }else if(v.getId() == start_date.getId()){
+        }else*/if(v.getId() == start_date.getId()){
             Calendar mcurrentTime = Calendar.getInstance();
             int year = mcurrentTime.get(Calendar.YEAR);
             int month = mcurrentTime.get(Calendar.MONTH);
@@ -198,7 +210,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
             DatePickerDialog mdiDialog =new DatePickerDialog(getActivity(),new DatePickerDialog.OnDateSetListener(){
                 @Override
                 public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                    Toast.makeText(getActivity(),year+ " "+monthOfYear+" "+dayOfMonth, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getActivity(),year+ " "+monthOfYear+" "+dayOfMonth, Toast.LENGTH_LONG).show();
                     start_date.setText(year+"/" +monthOfYear+"/"+dayOfMonth);
                 }
             }, year, month, date);
@@ -211,7 +223,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
             DatePickerDialog mdiDialog =new DatePickerDialog(getActivity(),new DatePickerDialog.OnDateSetListener(){
                 @Override
                 public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                    Toast.makeText(getActivity(),year+ " "+monthOfYear+" "+dayOfMonth, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getActivity(),year+ " "+monthOfYear+" "+dayOfMonth, Toast.LENGTH_LONG).show();
                     end_date.setText(year+"/" +monthOfYear+"/"+dayOfMonth);
                 }
             }, year, month, date);

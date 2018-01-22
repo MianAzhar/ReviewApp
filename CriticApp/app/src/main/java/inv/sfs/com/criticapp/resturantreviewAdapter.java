@@ -41,6 +41,11 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
     public final Integer position_;
     public final Restaurant currentRestaurant;
 
+    public String reataurant_name_st;
+    public String total_rating_st;
+    public float total_rating_stars_float;
+
+
     public resturantreviewAdapter(Activity context, ArrayList<String> name ,ArrayList<Float> rating_value,ArrayList<String> address, int position, List<Integer> ratingsCount ) {
         super(context, R.layout.restaurantsreviewlayout, name);
         // TODO Auto-generated constructor stub
@@ -80,6 +85,9 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
             float star = ((float)currentRestaurant.avgRating) / 90 * 5;
             rating_bar_top.setRating(star);
             restaurant_name.setText(StorageHelper.restaurants_generic_list.get(position_).restaurant_name);
+            total_rating_stars_float =  star;
+            reataurant_name_st = StorageHelper.restaurants_generic_list.get(position_).restaurant_name;
+            total_rating_st = String.valueOf(currentRestaurant.avgRating);
 
             ProgressBar progress_1 = (ProgressBar)rowView.findViewById(R.id.progress_1);
             ProgressBar progress_2 = (ProgressBar)rowView.findViewById(R.id.progress_2);
@@ -145,7 +153,6 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
                         android.support.v4.app.FragmentTransaction ft = ((AppCompatActivity) getContext()).getSupportFragmentManager()
                                 .beginTransaction();
                         ft.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
-
                     }else{
                         Toast.makeText(getContext(), "Please Login", Toast.LENGTH_SHORT).show();
                     }
@@ -160,24 +167,7 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
             TextView score = (TextView)rowView.findViewById(R.id.userScore);
             LinearLayout review_lay = (LinearLayout) rowView.findViewById(R.id.review_lay);
 
-            review_lay.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View view){
-
-                    StorageHelper.uiBlock = true;
-                    Bundle bundle = new Bundle();
-                    bundle.putString("position" , position_.toString());
-                    addReviewfrag addreview = new addReviewfrag();
-                    addreview.setArguments(bundle);
-                    android.support.v4.app.FragmentTransaction trans1 = ((AppCompatActivity) getContext()).getSupportFragmentManager()
-                            .beginTransaction();
-                    trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
-                }
-            });
-
-
-
-            try {
+            try{
                 ParseObject review = currentRestaurant.reviews.get(position - 1);
                // review = review.fetch();
                 ParseObject userObj = review.getParseObject("userId");

@@ -15,6 +15,7 @@ public class FullReviewModel {
     public String servers_name;
     public int averageRating;
     public ParseObject parseObject;
+    public ParseObject restaurantObj;
 
     public FullReviewModel(){
         delivery_time = "";

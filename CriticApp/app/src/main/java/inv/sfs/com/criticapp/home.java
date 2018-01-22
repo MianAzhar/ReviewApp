@@ -318,10 +318,10 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         myrequests.add(jsonObjectRequest);
     }
 
-    public void PlotLocations(JSONObject response) throws JSONException {
+    public void PlotLocations(JSONObject response) throws JSONException{
         JSONArray results = response.getJSONArray("results");
 
-        for (int i = 0; i < results.length(); i++) {
+        for (int i = 0; i < results.length(); i++){
             JSONObject temp_Obj = results.getJSONObject(i);
             JSONObject geometry = temp_Obj.getJSONObject("geometry");
             JSONObject location = geometry.getJSONObject("location");
@@ -330,7 +330,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             temp_restaurant.latitude = Double.valueOf(location.getString("lat"));
             temp_restaurant.longitude = Double.valueOf(location.getString("lng"));
 
-            if (temp_Obj.has("rating")) {
+            if (temp_Obj.has("rating")){
                 temp_restaurant.rating_google = Double.valueOf(temp_Obj.getString("rating"));
             }else{
                 temp_restaurant.rating_google = Double.valueOf("0.0");
@@ -352,11 +352,11 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         ParseQuery<ParseObject> parseQuery = new ParseQuery<>("Restaurant");
         parseQuery.whereEqualTo("place_id", restaurant.PlaceId);
 
-        parseQuery.findInBackground(new FindCallback<ParseObject>() {
+        parseQuery.findInBackground(new FindCallback<ParseObject>(){
             @Override
-            public void done(List<ParseObject> objects, ParseException e) {
+            public void done(List<ParseObject> objects, ParseException e){
                 if(e == null){
-                    if(objects.size() > 0) {
+                    if(objects.size() > 0){
                         restaurant.parseObject = objects.get(0);
                         getReviews(restaurant);
                     }
@@ -368,6 +368,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     public void getReviews(final Restaurant restaurant){
         ParseQuery<ParseObject> parseQuery = new ParseQuery<>("FullReview");
         parseQuery.whereEqualTo("restaurantId", restaurant.parseObject);
+        parseQuery.include("restaurantId");
         parseQuery.include("userId");
         parseQuery.setLimit(1000);
 
@@ -468,7 +469,6 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
              }
 
         }
-
     }
 
     @Override

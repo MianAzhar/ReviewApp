@@ -23,7 +23,10 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -71,6 +74,12 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
     ParseObject fullReviewObject = null;
     public ArrayList<Rating> editRatingObject = new ArrayList<Rating>();
     addReviewsAdapter adapter;
+    LinearLayout view_review_extra_lay;
+    public String reataurant_name_st;
+    public String total_rating_st;
+    public float total_rating_stars_float;
+    TextView restaurant_name_tv,criticScore_tv;
+    RatingBar rating_bar_rb;
 
 
     public addReviewfrag(){
@@ -136,6 +145,10 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         comments.add("Comment: 30min etc.");
         comments.add("null");
 
+        restaurant_name_tv = (TextView) getView().findViewById(R.id.restaurant_name);
+        criticScore_tv = (TextView) getView().findViewById(R.id.criticScore);
+        rating_bar_rb = (RatingBar) getView().findViewById(R.id.rating_bar);
+
         dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.customdialogue);
@@ -145,16 +158,44 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         submit_instant_zero_btn.setOnClickListener(this);
         pd = new TransparentProgressDialog(getContext(), R.drawable.loader);
         instant_zero_comment = (EditText) dialog.getWindow().findViewById(R.id.instant_zero_comment);
-
+        view_review_extra_lay = (LinearLayout) getView().findViewById(R.id.view_review_extra_lay);
         instant_btn = (Button) getView().findViewById(R.id.instant_btn);
         instant_btn.setOnClickListener(this);
 
-        if(StorageHelper.uiBlock){
-            instant_btn.setVisibility(View.GONE);
+        try{
+            reataurant_name_st = getArguments().getString("reataurant_name_st");
+            total_rating_st  = getArguments().getString("total_rating_st");
+            total_rating_stars_float = getArguments().getFloat("total_rating_stars_float");
+
+
+            restaurant_name_tv.setText(reataurant_name_st);
+            criticScore_tv.setText(total_rating_st);
+            rating_bar_rb.setRating(total_rating_stars_float);
+            getArguments().get("fullReview");
+        }catch (Exception e){
         }
 
-        restaurantPosition = Integer.valueOf(getArguments().getString("position"));
-        checkforEditReview();
+        if(StorageHelper.uiBlock){
+            instant_btn.setVisibility(View.GONE);
+            view_review_extra_lay.setVisibility(View.VISIBLE);
+        }else{
+            instant_btn.setVisibility(View.VISIBLE);
+            view_review_extra_lay.setVisibility(View.GONE);
+        }
+
+        if(getArguments().getString("position") != null){
+            restaurantPosition = Integer.valueOf(getArguments().getString("position"));
+        }else{
+            restaurantPosition = - 1;
+            fullReviewObject = getArguments().getParcelable("fullReview");
+        }
+
+        if(restaurantPosition == -1){
+            getFullRatingRestaurant();
+        }else{
+            checkforEditReview();
+        }
+
     }
 
     @Override
@@ -233,7 +274,19 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
 
     public void populateAdapter(){
         add_review_lv = (ListView) getView().findViewById(R.id.add_review_lv);
-        adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,editRatingObject,fullReviewObject);
+        if(restaurantPosition == -1){
+            Restaurant rest = new Restaurant();
+            ParseObject obj = fullReviewObject.getParseObject("restaurantId");
+            rest.avgRating = obj.getInt("avgRating");
+            rest.restaurant_name = obj.getString("name");
+            rest.parseObject = obj;
+            adapter = new addReviewsAdapter(getActivity(), review_against,comments, rest,true,editRatingObject,fullReviewObject);
+
+        }else{
+            adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,editRatingObject,fullReviewObject);
+
+        }
+
         add_review_lv.setAdapter(adapter);
         add_review_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
