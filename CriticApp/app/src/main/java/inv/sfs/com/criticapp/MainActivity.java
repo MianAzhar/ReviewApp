@@ -175,7 +175,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
 
@@ -277,6 +276,7 @@ public class MainActivity extends AppCompatActivity
          int id = item.getItemId();
 
         if (id == R.id.top_ten){
+            StorageHelper.topTen = true;
             allReviewsfrag allReviews = new allReviewsfrag();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,allReviews).addToBackStack(null).commit();

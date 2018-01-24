@@ -2,7 +2,11 @@ package inv.sfs.com.criticapp;
 
 
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -29,6 +33,12 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.share.model.ShareHashtag;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.model.ShareOpenGraphAction;
+import com.facebook.share.model.ShareOpenGraphContent;
+import com.facebook.share.model.ShareOpenGraphObject;
+import com.facebook.share.widget.ShareDialog;
 import com.parse.FindCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -74,7 +84,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
     ParseObject fullReviewObject = null;
     public ArrayList<Rating> editRatingObject = new ArrayList<Rating>();
     addReviewsAdapter adapter;
-    LinearLayout view_review_extra_lay;
+    LinearLayout view_review_extra_lay,share_lay;
     public String reataurant_name_st;
     public String total_rating_st;
     public float total_rating_stars_float;
@@ -145,6 +155,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         comments.add("Comment: 30min etc.");
         comments.add("null");
 
+        share_lay = (LinearLayout) getView().findViewById(R.id.share_lay);
         restaurant_name_tv = (TextView) getView().findViewById(R.id.restaurant_name);
         criticScore_tv = (TextView) getView().findViewById(R.id.criticScore);
         rating_bar_rb = (RatingBar) getView().findViewById(R.id.rating_bar);
@@ -161,6 +172,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         view_review_extra_lay = (LinearLayout) getView().findViewById(R.id.view_review_extra_lay);
         instant_btn = (Button) getView().findViewById(R.id.instant_btn);
         instant_btn.setOnClickListener(this);
+        share_lay.setOnClickListener(this);
 
         try{
             reataurant_name_st = getArguments().getString("reataurant_name_st");
@@ -173,6 +185,12 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
             rating_bar_rb.setRating(total_rating_stars_float);
             getArguments().get("fullReview");
         }catch (Exception e){
+        }
+
+
+        if(StorageHelper.shareReview){
+            StorageHelper.shareReview = false;
+            share_lay.setVisibility(View.VISIBLE);
         }
 
         if(StorageHelper.uiBlock){
@@ -242,7 +260,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
                             tempObject = new Rating();
                             ParseObject parseObject = list.get(i);
                             tempObject.parseObject = parseObject;
-                            tempObject.comment = parseObject.get("comments").toString();
+                            tempObject.comment = parseObject.getString("comments").toString();
                             tempObject.rated_value = (int) parseObject.get("rated_value");
                             tempObject.title = parseObject.get("title").toString();
                             editRatingObject.add(tempObject);
@@ -274,16 +292,35 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
 
     public void populateAdapter(){
         add_review_lv = (ListView) getView().findViewById(R.id.add_review_lv);
+
+        ArrayList<Rating> newList = new ArrayList<>();
+
+        if(editRatingObject.size() > 0){
+            for(int i = 0; i < review_against.size(); i++){
+                String str = review_against.get(i);
+
+                for(int j = 0; j < editRatingObject.size(); j++){
+                    Rating temp = editRatingObject.get(j);
+
+                    if(temp.title.equals(str)){
+                        newList.add(temp);
+                        break;
+                    }
+                }
+            }
+        }
+
         if(restaurantPosition == -1){
             Restaurant rest = new Restaurant();
             ParseObject obj = fullReviewObject.getParseObject("restaurantId");
             rest.avgRating = obj.getInt("avgRating");
             rest.restaurant_name = obj.getString("name");
             rest.parseObject = obj;
-            adapter = new addReviewsAdapter(getActivity(), review_against,comments, rest,true,editRatingObject,fullReviewObject);
+
+            adapter = new addReviewsAdapter(getActivity(), review_against,comments, rest,true,newList,fullReviewObject);
 
         }else{
-            adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,editRatingObject,fullReviewObject);
+            adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,newList,fullReviewObject);
 
         }
 
@@ -336,6 +373,16 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
             }else{
                 doWork();
             }
+        }else if(v.getId() == share_lay.getId()){
+
+            ShareLinkContent content = new ShareLinkContent.Builder()
+                    .setContentUrl(Uri.parse(" https://play.google.com/store/apps/details?id=inv.sfs.com.disasterresourse"))
+                    .setQuote(ParseUser.getCurrentUser().get("name") + " reviewed " + reataurant_name_st + " and gave it a " +
+                            total_rating_st +" score.")
+                    .build();
+
+            ShareDialog shareDialog = new ShareDialog(getActivity());
+            shareDialog.show(content, ShareDialog.Mode.AUTOMATIC);
         }
     }
 

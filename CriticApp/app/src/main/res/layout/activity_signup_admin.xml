@@ -16,8 +16,9 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"
         android:paddingLeft="10dp"
+        android:inputType="text"
         android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Owner Name" />
+        android:hint="Owner Name"/>
 
     <EditText
         android:id="@+id/email"
@@ -26,14 +27,16 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:paddingLeft="10dp"
+        android:inputType="textEmailAddress"
         android:layout_marginTop="5dp"
         android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Email" />
+        android:hint="Email"/>
 
     <EditText
         android:id="@+id/phone_no"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:inputType="phone"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:paddingLeft="10dp"
@@ -50,6 +53,7 @@
         android:layout_marginRight="10dp"
         android:paddingLeft="10dp"
         android:layout_marginTop="5dp"
+        android:inputType="textPassword"
         android:background="@drawable/rounded_edittext_bottom_white"
         android:hint="Password" />
 
@@ -60,6 +64,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:paddingLeft="10dp"
+        android:inputType="textPassword"
         android:layout_marginTop="5dp"
         android:background="@drawable/rounded_edittext_bottom_white"
         android:hint="Confirm Password"/>
@@ -70,13 +75,21 @@
         android:layout_height="60dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:inputType="text"
         android:paddingLeft="10dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/rounded_edittext_bottom_white"
         android:hint="Location Address"/>
 
-
-
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This Restaurant alreay have an Admin"
+        android:id="@+id/error_tv"
+        android:paddingLeft="10dp"
+        android:visibility="gone"
+        android:textSize="15dp"
+        android:textColor="@color/red"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -93,12 +106,10 @@
             android:text="Register Account"
             android:layout_marginTop="20dp"
             android:textColor="@color/white"
-            android:id="@+id/login"
+            android:id="@+id/register_account_btn"
             android:textSize="20dp"
             android:layout_marginBottom="20dp"
             android:layout_alignParentBottom="true"
             android:background="@drawable/standard_btn"/>
     </LinearLayout>
-
-
 </LinearLayout>

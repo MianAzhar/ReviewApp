@@ -19,11 +19,14 @@ public class StorageHelper {
 
     public static String is_admin_login;
     public static ArrayList<Restaurant> restaurants_generic_list =new ArrayList<Restaurant>();
+    public static ArrayList<Restaurant> searched_restaurant_list =new ArrayList<Restaurant>();
     public static ArrayList<String> filters_list = new ArrayList<String>();
     public static Boolean filter_results = false;
     public static ParseFile parseImageFile = null;
     public static Bitmap bitmapImageFile;
     public static Boolean uiBlock = false;
+    public static Boolean topTen = false;
+    public static Boolean shareReview = false;
 
 
     public static ArrayList<Restaurant> sortforTop10(ArrayList<Restaurant> array){

@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,6 @@ import inv.sfs.com.criticapp.Models.FullReviewModel;
  * A simple {@link Fragment} subclass.
  */
 public class reviewDetailsfrag extends Fragment implements View.OnClickListener {
-
 
     ListView reviews_lv;
     public ArrayList<String> restaurant_name =new ArrayList<String>();
@@ -149,10 +149,24 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
                     String pos1 = String.valueOf(position);
                     StorageHelper.uiBlock = true;
                     Bundle bundle = new Bundle();
+
+                    ParseObject tempFullReview = StorageHelper.restaurants_generic_list.get(position).reviews.get(pos - 1);
+                    if(ParseUser.getCurrentUser()  != null){
+                        ParseUser temp = tempFullReview.getParseUser("userId");
+                        if(ParseUser.getCurrentUser().getObjectId().equals(temp.getObjectId())){
+                            StorageHelper.shareReview = true;
+                        }else{
+                            StorageHelper.shareReview = false;
+                        }
+                    }else{
+                        StorageHelper.shareReview = false;
+                    }
+
                     bundle.putString("reataurant_name_st" , StorageHelper.restaurants_generic_list.get(position).restaurant_name);
-                    bundle.putString("total_rating_st" , String.valueOf(StorageHelper.restaurants_generic_list.get(position).avgRating));
-                    bundle.putFloat("total_rating_stars_float" , StorageHelper.restaurants_generic_list.get(position).avgRating / 90 * 5);
-                    bundle.putParcelable("fullReview" , StorageHelper.restaurants_generic_list.get(position).reviews.get(pos - 1));
+                    bundle.putString("total_rating_st" , tempFullReview.get("averageRating").toString());
+                    if(tempFullReview.getNumber("overall_Rating") != null)
+                        bundle.putFloat("total_rating_stars_float" ,  tempFullReview.getNumber("overall_Rating").floatValue());
+                    bundle.putParcelable("fullReview" , tempFullReview);
                     addReviewfrag addreview = new addReviewfrag();
                     addreview.setArguments(bundle);
                     android.support.v4.app.FragmentTransaction trans1 = ((AppCompatActivity) getContext()).getSupportFragmentManager()

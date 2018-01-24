@@ -2,6 +2,7 @@ package inv.sfs.com.criticapp;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -116,8 +117,7 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
                 percentage_3.setText("0%");
                 percentage_4.setText("0%");
                 percentage_5.setText("0%");
-
-            }else {
+            }else{
                 float one_rating =  (ratingsCount_.get(0)/ total_reviews) * 100;
                 float two_rating =  (ratingsCount_.get(1)/ total_reviews) * 100;
                 float three_rating =  (ratingsCount_.get(2)/ total_reviews) * 100;
@@ -138,7 +138,6 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
                 percentage_5.setText(Float.toString(five_rating)+ "%");
             }
 
-
             be_a_critic_lay.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){
@@ -154,7 +153,9 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
                                 .beginTransaction();
                         ft.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
                     }else{
-                        Toast.makeText(getContext(), "Please Login", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(getContext(), login.class);
+                        getContext().startActivity(i);
+                       //Toast.makeText(getContext(), "Please Login", Toast.LENGTH_SHORT).show();
                     }
                 }
             });

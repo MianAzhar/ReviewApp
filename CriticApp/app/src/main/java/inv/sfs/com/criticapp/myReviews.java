@@ -122,10 +122,10 @@ public class myReviews extends Fragment{
             public void onItemClick(AdapterView<?> parent, View view,
                                     final int position, long id){
 
+                StorageHelper.shareReview = true;
                 StorageHelper.uiBlock = true;
                 Bundle bundle = new Bundle();
                 bundle.putString("reataurant_name_st" , fullReviews_list.get(position).restaurantObj.get("name").toString());
-
                 bundle.putFloat("total_rating_stars_float" , fullReviews_list.get(position).overall_Rating);
                 bundle.putString("total_rating_st" , String.valueOf(fullReviews_list.get(position).averageRating));
                 bundle.putParcelable("fullReview" , fullReviews_list.get(position).parseObject);
@@ -138,7 +138,6 @@ public class myReviews extends Fragment{
         });
     }
     }
-
 
 class my_reviews_list_adapter extends ArrayAdapter<FullReviewModel>{
     private final Activity context;

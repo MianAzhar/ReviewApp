@@ -24,6 +24,7 @@ public class HelperFunctions{
 
     //public static Integer PROXIMITY_RADIUS = 40234; //25 miles
     public static Integer PROXIMITY_RADIUS = 8047; //5 miles
+    public static Integer PROXIMITY_RADIUS_ONE_MILE = 1000; //5 miles
     public static String API_KEY = "AIzaSyB34u6YAzpHBnicod6dsRERE9wZVr7JW4Y";
     public static String places ="restaurant|cafe|meal_takeaway|meal_delivery";
 
@@ -52,11 +53,11 @@ public class HelperFunctions{
     }
 
 
-    public static String getUrl(double latitude,double longitude, String next_pg_token, String searchText){
+    public static String getUrl(double latitude,double longitude, String next_pg_token, String searchText, Integer radius){
 
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlaceUrl.append("location="+latitude+","+longitude);
-        googlePlaceUrl.append("&radius="+PROXIMITY_RADIUS);
+        googlePlaceUrl.append("&radius="+radius);
         //googlePlaceUrl.append("&type="+"restaurant");
         googlePlaceUrl.append("&type="+places);
         if(searchText != null){

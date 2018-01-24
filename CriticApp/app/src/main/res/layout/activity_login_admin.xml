@@ -30,7 +30,8 @@
             android:layout_weight="0.9"
             android:background="@android:color/transparent"
             android:paddingLeft="10dp"
-            android:hint="User Name"/>
+            android:id="@+id/email_et"
+            android:hint="Email"/>
 
     </LinearLayout>
 
@@ -57,6 +58,7 @@
             android:layout_weight="0.9"
             android:background="@android:color/transparent"
             android:paddingLeft="10dp"
+            android:id="@+id/pass_et"
             android:hint="Password"/>
 
     </LinearLayout>

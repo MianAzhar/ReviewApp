@@ -16,12 +16,12 @@
         <item
             android:id="@+id/be_critic"
             android:icon="@drawable/be_critic"
-            android:title="Be a Critic" />
+            android:title="Be a Critic"/>
 
         <item
             android:id="@+id/admin_portal"
             android:icon="@drawable/profile_user"
-            android:title="Admin Portal" />
+            android:title="Owner Portal"/>
 
 
         <item

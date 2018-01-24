@@ -61,10 +61,38 @@
                 android:numStars="5"
                 android:id="@+id/rating_bar"
                 android:stepSize="0.5"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/share_lay"
+                android:visibility="gone"
+                android:layout_marginLeft="70dp"
+                android:layout_marginRight="70dp"
+                android:background="@drawable/standard_btn">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:foregroundGravity="center_vertical|center_horizontal"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:tint="@color/white"
+                    android:paddingLeft="50dp"
+                    android:src="@drawable/share_icon"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20dp"
+                    android:layout_gravity="center_horizontal|center_vertical"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:text="Share"/>
+            </LinearLayout>
         </LinearLayout>
-
-
-
 
         <Button
             android:id="@+id/instant_btn"

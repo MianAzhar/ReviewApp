@@ -90,7 +90,6 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     Boolean back_pressed = false;
     private MarshMallowPermission marshMallowPermission;
 
-
     public home(){
     }
 
@@ -266,7 +265,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         restaurants_list.clear();
         pd.show();
         myrequests = Volley.newRequestQueue(getActivity());
-        String url = helperfunctions.getUrl(latitude, longitude, next_pg_token, searchText);
+        String url = helperfunctions.getUrl(latitude, longitude, next_pg_token, searchText, HelperFunctions.PROXIMITY_RADIUS);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url, new Response.Listener<JSONObject>(){
             @Override
             public void onResponse(JSONObject response){
@@ -380,7 +379,11 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
                     sum += objects.get(i).getInt("averageRating");
                 }
 
-                restaurant.avgRating = sum / objects.size();
+                if(objects.size() == 0){
+                    restaurant.avgRating = 0;
+                }else{
+                    restaurant.avgRating = sum / objects.size();
+                }
                 restaurant.reviews = objects;
                 PlotMap();
             }

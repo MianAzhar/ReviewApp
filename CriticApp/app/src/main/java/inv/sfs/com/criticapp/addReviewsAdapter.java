@@ -6,7 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -61,6 +63,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
     float finalRating_value = 0;
     public ImageView image_iv;
     private static final int SELECT_PICTURE = 1;
+    public int averageRating;
+    ParseObject tempFullReview;
 
 
     public addReviewsAdapter(Activity context, ArrayList<String> name, ArrayList<String> comments, Restaurant restaurant,Boolean editMode,ArrayList<Rating> editRatingObject,ParseObject fullReviewModel) {
@@ -95,6 +99,7 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 this.ratings.add(temp);
             }
         }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -290,26 +295,6 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 rating_bar_overall_appeal.setEnabled(false);
 
 
-                /*be_a_critic_lay.setFocusable(false);
-                be_a_critic_lay.setEnabled(false);
-                be_a_critic_lay.setFocusableInTouchMode(false);
-
-                submitBtn.setFocusable(false);
-                submitBtn.setEnabled(false);
-                submitBtn.setFocusableInTouchMode(false);
-
-                yes_btn.setFocusable(false);
-                yes_btn.setEnabled(false);
-                yes_btn.setFocusableInTouchMode(false);
-
-                no_btn.setFocusable(false);
-                no_btn.setEnabled(false);
-                no_btn.setFocusableInTouchMode(false);
-
-                image_iv.setFocusable(false);
-                image_iv.setEnabled(false);
-                image_iv.setFocusableInTouchMode(false);*/
-
             }
 
 
@@ -318,6 +303,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 public void onRatingChanged(RatingBar ratingBar, float rating,
                                             boolean fromUser){
                     finalRating_value = rating;
+                    Rating temp = ratings.get(position);
+                    temp.rated_value = (int)rating;
                 }
             });
 
@@ -369,7 +356,6 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
 
                     currentView.setBackground(getContext().getResources().getDrawable(R.drawable.circle_red));
                     currentView.setTextColor(getContext().getResources().getColor(R.color.white));
-
                 }
             }
             try {
@@ -397,7 +383,7 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 }
 
                 @Override
-                public void afterTextChanged(Editable s) {
+                public void afterTextChanged(Editable s){
                     if(position == name_.size() -2)
                         fullReviewModel.delivery_time = s.toString();
                     else {
@@ -526,8 +512,6 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
         return rowView;
     }
 
-
-
     private void saveReview(){
         doWork();
         /*
@@ -574,6 +558,7 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 sum += ratings.get(i).rated_value;
             }
 
+            averageRating = sum;
             //fullReviewModel.averageRating = sum / (ratings.size() - 2);
             fullReviewObj.put("averageRating", sum);
 
@@ -581,6 +566,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 @Override
                 public void done(ParseException e) {
                     if (e == null) {
+
+                        tempFullReview = fullReviewObj;
                         Toast.makeText(context, "FullReview Saved", Toast.LENGTH_LONG).show();
 
                         ParseUser currentUser = ParseUser.getCurrentUser();
@@ -619,9 +606,10 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                                 if (e == null) {
                                     Toast.makeText(context, "Review Saved", Toast.LENGTH_LONG).show();
                                     pd.dismiss();
-                                    Intent i = new Intent(getContext(), MainActivity.class);
+                                    reloadFragment();
+                                    /*Intent i = new Intent(getContext(), MainActivity.class);
                                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    context.startActivity(i);
+                                    context.startActivity(i);*/
 
                                 } else {
                                     pd.dismiss();
@@ -665,6 +653,7 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                         fullReviewObj.put("comments", fullReviewModel.comments);
                         fullReviewObj.put("servers_name", fullReviewModel.servers_name);
                         fullReviewObj.put("overall_Rating", finalRating_value);
+                        if(StorageHelper.parseImageFile != null)
                         fullReviewObj.put("Image", StorageHelper.parseImageFile);
 
                         int sum = 0;
@@ -733,7 +722,21 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                 }
             });
         }
-
     }
 
+    public void reloadFragment(){
+        StorageHelper.shareReview = true;
+        StorageHelper.uiBlock = true;
+        Bundle bundle = new Bundle();
+        bundle.putString("reataurant_name_st" , this.restaurant.restaurant_name);
+
+        bundle.putFloat("total_rating_stars_float" , finalRating_value);
+        bundle.putString("total_rating_st" , String.valueOf(averageRating));
+        bundle.putParcelable("fullReview" , tempFullReview);
+        addReviewfrag addreview = new addReviewfrag();
+        addreview.setArguments(bundle);
+        android.support.v4.app.FragmentTransaction trans1 = ((AppCompatActivity) getContext()).getSupportFragmentManager()
+                .beginTransaction();
+        trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
+    }
 }

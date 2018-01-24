@@ -10,5 +10,6 @@
     <string name="GPSAlertDialogTitle">DialogTitle</string>
     <string name="GPSAlertDialogMessage">Enable Location</string>
     <string name="cancel">Cancel</string>
+    <string name="facebook_app_id">136466263825988</string>
 
 </resources>

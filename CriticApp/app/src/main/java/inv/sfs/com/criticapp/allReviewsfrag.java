@@ -58,8 +58,15 @@ public class allReviewsfrag extends Fragment {
         top10SortedRestaurants = StorageHelper.sortforTop10(StorageHelper.restaurants_generic_list);
         reviews_list = (ListView) getView().findViewById(R.id.reviews_list);
         top10SortedRestaurantsSublist = new ArrayList<Restaurant>(top10SortedRestaurants.subList(0, 10));
-        reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), top10SortedRestaurantsSublist);
-        reviews_list.setAdapter(adapter);
+        if(StorageHelper.topTen){
+            StorageHelper.topTen = false;
+            reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), top10SortedRestaurantsSublist);
+            reviews_list.setAdapter(adapter);
+        } else{
+            reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), StorageHelper.restaurants_generic_list);
+            reviews_list.setAdapter(adapter);
+        }
+
         reviews_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
