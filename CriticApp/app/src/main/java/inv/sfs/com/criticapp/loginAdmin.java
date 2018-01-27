@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.LogInCallback;
@@ -20,6 +21,7 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
     EditText email_et, pass_et;
     String username_st, password_st;
     TransparentProgressDialog pd;
+    TextView auth_error;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -36,6 +38,7 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
         login_btn.setOnClickListener(this);
         preference = PrefrencesHelper.getInstance(this);
         pd = new TransparentProgressDialog(this, R.drawable.loader);
+        auth_error = (TextView) findViewById(R.id.auth_error);
     }
 
     @Override
@@ -50,10 +53,21 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
                 ParseUser.logInInBackground(email_et.getText().toString(), pass_et.getText().toString(), new LogInCallback() {
                     public void done(ParseUser user, ParseException e){
                         if (user != null){
-                            pd.dismiss();
-                            preference.setBoolObject("admin_logged_in" , true);
-                            Intent i = new Intent(loginAdmin.this , MainActivity.class);
-                            startActivity(i);
+
+                            if(user.get("restaurant") != null){
+                                auth_error.setVisibility(View.GONE);
+                                pd.dismiss();
+                                preference.setBoolObject("admin_logged_in" , true);
+                                Intent i = new Intent(loginAdmin.this , MainActivity.class);
+                                startActivity(i);
+                            }else{
+                                pd.dismiss();
+                                auth_error.setVisibility(View.VISIBLE);
+                                ParseUser.logOut();
+
+                            }
+
+
                         } else{
                             pd.dismiss();
                             Toast.makeText(loginAdmin.this, "Invalid Username Password", Toast.LENGTH_SHORT).show();

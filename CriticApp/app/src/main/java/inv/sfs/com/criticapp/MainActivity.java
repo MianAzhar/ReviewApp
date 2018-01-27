@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity
             my_reviews.setVisible(true);
 
             MenuItem my_events = menu.findItem(R.id.my_events);
-            my_events.setVisible(true);
+            my_events.setVisible(false);
 
             MenuItem reports = menu.findItem(R.id.reports);
             reports.setVisible(false);
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity
             score.setVisible(false);
 
             MenuItem invite_critics = menu.findItem(R.id.invite_critics);
-            invite_critics.setVisible(true);
+            invite_critics.setVisible(false);
 
             MenuItem logout = menu.findItem(R.id.logout);
             logout.setVisible(true);
@@ -101,17 +101,15 @@ public class MainActivity extends AppCompatActivity
             MenuItem admin_portal = menu.findItem(R.id.admin_portal);
             admin_portal.setVisible(false);
 
-
-
         }else if (preference.getBoolObject("admin_logged_in")){
             MenuItem invite_owner = menu.findItem(R.id.invite_owner);
-            invite_owner.setVisible(false);
+            invite_owner.setVisible(true);
 
             MenuItem invite_users = menu.findItem(R.id.invite_users);
             invite_users.setVisible(false);
 
             MenuItem my_reviews = menu.findItem(R.id.my_reviews);
-            my_reviews.setVisible(false);
+            my_reviews.setVisible(true);
 
             MenuItem my_events = menu.findItem(R.id.my_events);
             my_events.setVisible(true);
@@ -129,16 +127,16 @@ public class MainActivity extends AppCompatActivity
             logout.setVisible(true);
 
             MenuItem be_critic = menu.findItem(R.id.be_critic);
-            be_critic.setVisible(false);
+            be_critic.setVisible(true);
 
             MenuItem admin_portal = menu.findItem(R.id.admin_portal);
             admin_portal.setVisible(false);
 
             MenuItem top_ten = menu.findItem(R.id.top_ten);
-            top_ten.setVisible(false);
+            top_ten.setVisible(true);
 
             MenuItem map_view = menu.findItem(R.id.map_view);
-            map_view.setVisible(false);
+            map_view.setVisible(true);
 
 
         }else{
@@ -169,17 +167,17 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-        home dashboard_fragment = new home();
-        android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
-        trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
+            home dashboard_fragment = new home();
+            android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+            trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
 
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
-
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == SELECT_PICTURE) {
+            if (requestCode == SELECT_PICTURE){
                 selectedImageUri = data.getData();
 
                 try {
@@ -291,15 +289,19 @@ public class MainActivity extends AppCompatActivity
             preference.setBoolObject("user_logged_in" , false);
             ParseUser.getCurrentUser().logOut();
 
-            //finishAffinity();
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
 
         }else if(id == R.id.invite_critics){
-            inviteCriticsfrag addreview = new inviteCriticsfrag();
+
+            inviteCriticsUpdated inviteCritics = new inviteCriticsUpdated();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
-            trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
+            trans1.replace(R.id.frame_container,inviteCritics).addToBackStack(null).commit();
+
+            /*inviteCriticsfrag addreview = new inviteCriticsfrag();
+            android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+            trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();*/
         }else if(id == R.id.map_view){
             home dashboard_fragment = new home();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
@@ -322,6 +324,14 @@ public class MainActivity extends AppCompatActivity
             myReviews myreviews = new myReviews();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,myreviews).addToBackStack(null).commit();
+        }else if(id == R.id.reports){
+            reports Reports = new reports();
+            android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+            trans1.replace(R.id.frame_container,Reports).addToBackStack(null).commit();
+        }else if(id == R.id.score){
+            criticScores scores = new criticScores();
+            android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+            trans1.replace(R.id.frame_container,scores).addToBackStack(null).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

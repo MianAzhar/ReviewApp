@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -27,28 +26,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
-import inv.sfs.com.criticapp.Models.Restaurant;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class myReviews extends Fragment{
+public class criticScores extends Fragment {
+
 
     TransparentProgressDialog pd;
+    ListView my_critics_list;
     FullReviewModel localFullReviews;
     public ArrayList<FullReviewModel> fullReviews_list = new ArrayList<FullReviewModel>();
-    ListView my_reviews_list;
 
-
-    public myReviews(){
+    public criticScores(){
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_reviews, container, false);
+        return inflater.inflate(R.layout.fragment_critic_scores, container, false);
     }
 
     @Override
@@ -56,22 +54,22 @@ public class myReviews extends Fragment{
         super.onActivityCreated(savedInstanceState);
 
         pd = new TransparentProgressDialog(getActivity(), R.drawable.loader);
-        my_reviews_list = (ListView) getView().findViewById(R.id.my_reviews_list);
+        my_critics_list = (ListView) getView().findViewById(R.id.my_critics);
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("My Reviews");
+        actionBar.setTitle("My Critics Review");
         getReviews();
     }
 
     public void getReviews(){
 
-            pd.show();
-            ParseQuery<ParseObject> parseQuery = new ParseQuery<>("FullReview");
-            parseQuery.whereEqualTo("userId", ParseUser.getCurrentUser());
-            parseQuery.include("userId");
-            parseQuery.include("restaurantId");
-            parseQuery.setLimit(1000);
+        pd.show();
+        ParseQuery<ParseObject> parseQuery = new ParseQuery<>("FullReview");
+        parseQuery.whereEqualTo("restaurantId", ParseUser.getCurrentUser().get("restaurant"));
+        parseQuery.include("userId");
+        parseQuery.include("restaurantId");
+        parseQuery.setLimit(1000);
 
-            parseQuery.findInBackground(new FindCallback<ParseObject>(){
+        parseQuery.findInBackground(new FindCallback<ParseObject>(){
             @Override
             public void done(List<ParseObject> list, ParseException e){
                 if (e == null){
@@ -80,6 +78,7 @@ public class myReviews extends Fragment{
                             ParseObject parseObject = list.get(i);
                             localFullReviews = new FullReviewModel();
                             localFullReviews.parseObject = parseObject;
+                            localFullReviews.userObj = parseObject.getParseUser("userId");
 
                             if(parseObject.get("overall_Rating") != null)
                                 localFullReviews.overall_Rating = (int) parseObject.get("overall_Rating");
@@ -115,10 +114,11 @@ public class myReviews extends Fragment{
         });
     }
 
+
     public void populateAdapter(){
-        final my_reviews_list_adapter adapter = new my_reviews_list_adapter(getActivity(), fullReviews_list);
-        my_reviews_list.setAdapter(adapter);
-        my_reviews_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        final my_critics_reviews_list_adapter adapter = new my_critics_reviews_list_adapter(getActivity(), fullReviews_list);
+        my_critics_list.setAdapter(adapter);
+        my_critics_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     final int position, long id){
@@ -126,7 +126,8 @@ public class myReviews extends Fragment{
                 StorageHelper.shareReview = true;
                 StorageHelper.uiBlock = true;
                 Bundle bundle = new Bundle();
-                bundle.putString("reataurant_name_st" , fullReviews_list.get(position).restaurantObj.get("name").toString());
+                bundle.putString("reataurant_name_st" , fullReviews_list.get(position).userObj.get("name").toString());
+                //bundle.putString("reataurant_name_st" , fullReviews_list.get(position).restaurantObj.get("name").toString());
                 bundle.putFloat("total_rating_stars_float" , fullReviews_list.get(position).overall_Rating);
                 bundle.putString("total_rating_st" , String.valueOf(fullReviews_list.get(position).averageRating));
                 bundle.putParcelable("fullReview" , fullReviews_list.get(position).parseObject);
@@ -138,13 +139,15 @@ public class myReviews extends Fragment{
             }
         });
     }
-    }
 
-class my_reviews_list_adapter extends ArrayAdapter<FullReviewModel>{
+}
+
+
+class my_critics_reviews_list_adapter extends ArrayAdapter<FullReviewModel> {
     private final Activity context;
     private final ArrayList<FullReviewModel> reviews_list_;
 
-    public my_reviews_list_adapter(Activity context, ArrayList<FullReviewModel> reviews_list){
+    public my_critics_reviews_list_adapter(Activity context, ArrayList<FullReviewModel> reviews_list){
         super(context, R.layout.restaurantsreviewlayout, reviews_list);
         // TODO Auto-generated constructor stub
 
@@ -161,13 +164,13 @@ class my_reviews_list_adapter extends ArrayAdapter<FullReviewModel>{
         TextView comments = (TextView) rowView.findViewById(R.id.comments);
         RatingBar rating_bar = (RatingBar) rowView.findViewById(R.id.rating_bar);
 
-            userScore.setText(Integer.toString(reviews_list_.get(position).averageRating));
-            comments.setText(reviews_list_.get(position).comments);
-            rating_bar.setRating(reviews_list_.get(position).overall_Rating);
-            if(reviews_list_.get(position).restaurantObj != null)
-                name.setText(reviews_list_.get(position).restaurantObj.getString("name"));
-            else
-                name.setText("Null it is");
+        userScore.setText(Integer.toString(reviews_list_.get(position).averageRating));
+        comments.setText(reviews_list_.get(position).comments);
+        rating_bar.setRating(reviews_list_.get(position).overall_Rating);
+        if(reviews_list_.get(position).restaurantObj != null)
+            name.setText(reviews_list_.get(position).userObj.getString("name"));
+        else
+            name.setText("Null it is");
 
         return rowView;
     }

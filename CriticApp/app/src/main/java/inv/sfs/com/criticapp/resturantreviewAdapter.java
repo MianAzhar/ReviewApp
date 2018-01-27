@@ -142,8 +142,7 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
                 @Override
                 public void onClick(View view){
                     PrefrencesHelper  preference = PrefrencesHelper.getInstance(getContext());
-                    if(preference.getBoolObject("user_logged_in")){
-
+                    if(ParseUser.getCurrentUser() != null){
                         StorageHelper.uiBlock = false;
                         Bundle bundle = new Bundle();
                         bundle.putString("position" , position_.toString());

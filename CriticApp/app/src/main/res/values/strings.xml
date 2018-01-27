@@ -11,5 +11,14 @@
     <string name="GPSAlertDialogMessage">Enable Location</string>
     <string name="cancel">Cancel</string>
     <string name="facebook_app_id">136466263825988</string>
+    <string name="invite_text">Inviting Critics to Your Restaurants can be a great way to improve your Critics Score,
+    let your community know you are improving and help you to make new Customers.</string>
+
+    <string name="invite_text_two">The Unique "Invite Critics" feature of this app will allow you to reach out
+        you to all users in your area at once. This will bring dozens or Hundreds of Restaurant Food Critics to your Tables
+        .</string>
+
+    <string name="invite_text_three">Before You can send out an invite you must setup the invite. Offer Critics as discount
+    Coupon or a free desert for Presenting their Critic Review of Your Restaurant</string>
 
 </resources>

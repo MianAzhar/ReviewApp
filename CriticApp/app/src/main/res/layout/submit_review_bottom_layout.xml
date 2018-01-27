@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="80dp"
-            android:src="@drawable/camera_img"/>
+            android:src="@drawable/camera_img" />
 
         <TextView
             android:layout_width="wrap_content"

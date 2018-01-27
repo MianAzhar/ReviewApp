@@ -59,9 +59,20 @@
             android:background="@android:color/transparent"
             android:paddingLeft="10dp"
             android:id="@+id/pass_et"
+            android:inputType="textPassword"
             android:hint="Password"/>
 
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You are not Authorized to Access Owner Portal"
+        android:textColor="@color/red"
+        android:visibility="gone"
+        android:layout_marginTop="10dp"
+        android:id="@+id/auth_error"
+        android:paddingLeft="10dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -8,6 +8,8 @@ import com.parse.ParseFile;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import inv.sfs.com.criticapp.Models.Restaurant;
 
@@ -46,4 +48,25 @@ public class StorageHelper {
         return array;
     }
 
+
+
+    public final static List<Integer> Colors = Arrays.asList(
+            0xfffef1b5,
+            0xffFC8EAC,
+            0xffFFDF00,
+            0xffFF7F00,
+            0xffFF0000,
+            0xff008000,
+            0xff0000FF,
+            0xffE5E4E2,
+            0xffC0C0C0,
+            0xffFFFF00,
+            0xff5D8AA8,
+            0xff2f70e1,
+            0xff53d76a,
+            0xffddaa3b,
+            0xffe5000f,
+            0xfffce6c9,
+            0xffdeb697,
+            0xff462d1d);
 }

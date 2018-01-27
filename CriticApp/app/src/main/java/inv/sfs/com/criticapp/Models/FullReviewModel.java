@@ -1,6 +1,7 @@
 package inv.sfs.com.criticapp.Models;
 
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 /**
  * Created by Mian Azhar on 12/26/2017.
@@ -16,6 +17,7 @@ public class FullReviewModel {
     public int averageRating;
     public ParseObject parseObject;
     public ParseObject restaurantObj;
+    public ParseUser userObj;
 
     public FullReviewModel(){
         delivery_time = "";
