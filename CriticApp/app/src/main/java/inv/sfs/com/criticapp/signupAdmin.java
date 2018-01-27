@@ -23,6 +23,7 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -158,6 +159,9 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
                     }
                     pd.dismiss();
                     preference.setBoolObject("admin_logged_in" , true);
+                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                    installation.put("user", ParseUser.getCurrentUser());
+                    installation.saveInBackground();
                     Intent i = new Intent(signupAdmin.this , MainActivity.class);
                     startActivity(i);
                 } else{

@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 public class spalsh extends AppCompatActivity {
 
@@ -16,22 +17,14 @@ public class spalsh extends AppCompatActivity {
         setContentView(R.layout.activity_spalsh);
         getSupportActionBar().hide();
 
-
-        Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
-                .applicationId("Z79YDHNg46TBXsFvBtHZBy0BI05cc5R5N4AjyXdJ") // should correspond to APP_ID env variable
-                .clientKey("m4Tb42TkP1XuxfviSaTy7XW5Lqq5d9t5FALraQN3")  // set explicitly unless clientKey is explicitly configured on Parse server
-                .server("https://parseapi.back4app.com/").build());
-        FacebookSdk.sdkInitialize(this);
-
         Handler mHandler = new Handler();
         mHandler.postDelayed(new Runnable(){
             @Override
-            public void run() {
+            public void run(){
                 //Intent i = new Intent(getApplicationContext() , main_pg.class);
                 //startActivity(i);
                 Intent i = new Intent(getApplicationContext() , MainActivity.class);
                 startActivity(i);
-
             }
          }, 2000L);
 

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
@@ -285,6 +286,11 @@ public class MainActivity extends AppCompatActivity
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
          }else if(id == R.id.logout){
+
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            installation.remove("user");
+            installation.saveInBackground();
+
             preference.setBoolObject("admin_logged_in" , false);
             preference.setBoolObject("user_logged_in" , false);
             ParseUser.getCurrentUser().logOut();

@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
@@ -70,6 +71,9 @@ public class signUp extends AppCompatActivity implements View.OnClickListener {
                         if (e == null){
                             pd.dismiss();
                             preference.setBoolObject("user_logged_in" , true);
+                            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                            installation.put("user", ParseUser.getCurrentUser());
+                            installation.saveInBackground();
                             Intent i = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(i);
                         } else{

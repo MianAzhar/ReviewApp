@@ -42,7 +42,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:text="Select Date"
+                android:hint="Select Date"
                 android:id="@+id/select_date"
                 android:textColor="@color/light_text"
                 android:layout_gravity="center_vertical"
@@ -66,6 +66,7 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:paddingLeft="5dp"
+                android:id="@+id/comments_et"
                 android:lines="5"
                 android:hint="comments" />
         </LinearLayout>
@@ -85,7 +86,7 @@
                 android:layout_height="50dp"
                 android:text="Send Invite"
                 android:textColor="@color/white"
-                android:id="@+id/signup"
+                android:id="@+id/send_invite"
                 android:textSize="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"

@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 public class loginAdmin extends AppCompatActivity implements View.OnClickListener{
@@ -57,6 +58,11 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
                             if(user.get("restaurant") != null){
                                 auth_error.setVisibility(View.GONE);
                                 pd.dismiss();
+
+                                ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                                installation.put("user", ParseUser.getCurrentUser());
+                                installation.saveInBackground();
+
                                 preference.setBoolObject("admin_logged_in" , true);
                                 Intent i = new Intent(loginAdmin.this , MainActivity.class);
                                 startActivity(i);

@@ -46,8 +46,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -241,6 +243,16 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         } else {
             latitude = bestLocation.getLatitude();
             longitude = bestLocation.getLongitude();
+
+            if(ParseUser.getCurrentUser() != null){
+                try {
+                    ParseGeoPoint geoPoint = new ParseGeoPoint(latitude, longitude);
+                    ParseUser.getCurrentUser().put("lastknownlocation",geoPoint);
+                    ParseUser.getCurrentUser().save();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
