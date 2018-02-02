@@ -1,20 +1,28 @@
 package inv.sfs.com.criticapp;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +32,8 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 import com.parse.GetCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -65,6 +75,8 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
     private static final int SELECT_PICTURE = 1;
     public int averageRating;
     ParseObject tempFullReview;
+    public String instant_zero_comment_st;
+    public Dialog dialog;
 
 
     public addReviewsAdapter(Activity context, ArrayList<String> name, ArrayList<String> comments, Restaurant restaurant,Boolean editMode,ArrayList<Rating> editRatingObject,ParseObject fullReviewModel) {
@@ -108,7 +120,108 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
         View rowView;
         final Button yes_btn, no_btn;
 
-        if(position == name_.size() - 1){
+        if(position == 0){
+            rowView= inflater.inflate(R.layout.instantzerolayout, null,true);
+            Button instant_btn,submit_instant_zero_btn;
+            LinearLayout view_review_extra_lay,share_lay;
+            TextView restaurant_name,criticScore;
+            RatingBar rating_bar;
+            ImageView facebook_iv,twitter_iv;
+
+
+            dialog = new Dialog(getContext());
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.customdialogue);
+            Window window = dialog.getWindow();
+            window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            submit_instant_zero_btn = (Button) dialog.getWindow().findViewById(R.id.submit_instant_zero_btn);
+            final EditText instant_zero_comment = (EditText) dialog.getWindow().findViewById(R.id.instant_zero_comment);
+
+            instant_btn = (Button) rowView.findViewById(R.id.instant_btn);
+            view_review_extra_lay = (LinearLayout) rowView.findViewById(R.id.view_review_extra_lay);
+            //share_lay = (LinearLayout) rowView.findViewById(R.id.share_lay);
+            restaurant_name = (TextView) rowView.findViewById(R.id.restaurant_name);
+            criticScore = (TextView) rowView.findViewById(R.id.criticScore);
+            rating_bar = (RatingBar) rowView.findViewById(R.id.rating_bar);
+            facebook_iv = (ImageView) rowView.findViewById(R.id.facebook_iv);
+            twitter_iv = (ImageView) rowView.findViewById(R.id.twitter_iv);
+
+            restaurant_name.setText(StorageHelper.reataurant_name_st);
+            criticScore.setText(StorageHelper.total_rating_st);
+            rating_bar.setRating(StorageHelper.total_rating_stars_float);
+            rating_bar.setFocusable(false);
+            rating_bar.setEnabled(false);
+
+            LayerDrawable stars = (LayerDrawable) rating_bar.getProgressDrawable();
+            stars.getDrawable(2).setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+
+            rating_bar.setOnTouchListener(new View.OnTouchListener(){
+                public boolean onTouch(View v, MotionEvent event) {
+                    return true;
+                }
+            });
+
+
+            if(StorageHelper.uiBlock){
+                //StorageHelper.uiBlock = false;
+                instant_btn.setVisibility(View.GONE);
+                view_review_extra_lay.setVisibility(View.VISIBLE);
+            }else{
+                instant_btn.setVisibility(View.VISIBLE);
+                view_review_extra_lay.setVisibility(View.GONE);
+            }
+
+            instant_btn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    dialog.show();
+                }
+            });
+
+            submit_instant_zero_btn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    if(instant_zero_comment.getText().toString().equals("")){
+                        instant_zero_comment.setError("Add comment to submit!!");
+                        instant_zero_comment.requestFocus();
+                    }else{
+                        instant_zero_comment_st = instant_zero_comment.getText().toString();
+                        doWorkInstantZero();
+                    }
+                }
+            });
+
+            /*twitter_iv.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setClassName("com.twitter.android",
+                            "com.twitter.android.PostActivity");
+                    shareIntent.setType("text/*");
+                    String text = "https://play.google.com/store/apps/details?id=inv.sfs.com.disasterresourse \n " +
+                            "ParseUser.getCurrentUser().get(\"name\") + \" reviewed \" + StorageHelper.reataurant_name_st + \" and gave it a \" +\n" +
+                            "StorageHelper.total_rating_st +\" score.\"";
+                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, text);
+                    context.startActivityForResult(shareIntent, 9);
+                }
+            });*/
+
+            facebook_iv.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    ShareLinkContent content = new ShareLinkContent.Builder()
+                            .setContentUrl(Uri.parse(" https://play.google.com/store/apps/details?id=inv.sfs.com.disasterresourse"))
+                            .setQuote(ParseUser.getCurrentUser().get("name") + " reviewed " + StorageHelper.reataurant_name_st + " and gave it a " +
+                                    StorageHelper.total_rating_st +" score.")
+                            .build();
+
+                    ShareDialog shareDialog = new ShareDialog(context);
+                    shareDialog.show(content, ShareDialog.Mode.AUTOMATIC);
+                }
+            });
+
+
+        } else if(position == name_.size() - 1){
             rowView= inflater.inflate(R.layout.submit_review_bottom_layout, null,true);
 
             yes_btn = (Button) rowView.findViewById(R.id.yes_btn);
@@ -187,7 +300,6 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-
                 }
 
                 @Override
@@ -214,7 +326,6 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
                             "Select Picture"), SELECT_PICTURE);
                 }
             });
-
 
             if(fullReviewModel.recommend_to_others){
                 yes_btn.setBackground(getContext().getResources().getDrawable(R.drawable.standard_btn));
@@ -724,19 +835,134 @@ public class addReviewsAdapter  extends ArrayAdapter<String> {
         }
     }
 
-    public void reloadFragment(){
-        StorageHelper.shareReview = true;
-        StorageHelper.uiBlock = true;
-        Bundle bundle = new Bundle();
-        bundle.putString("reataurant_name_st" , this.restaurant.restaurant_name);
 
-        bundle.putFloat("total_rating_stars_float" , finalRating_value);
-        bundle.putString("total_rating_st" , String.valueOf(averageRating));
-        bundle.putParcelable("fullReview" , tempFullReview);
-        addReviewfrag addreview = new addReviewfrag();
-        addreview.setArguments(bundle);
-        android.support.v4.app.FragmentTransaction trans1 = ((AppCompatActivity) getContext()).getSupportFragmentManager()
-                .beginTransaction();
-        trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
+    private void doWorkInstantZero(){
+
+        pd.show();
+        if(restaurant.parseObject != null){
+            pd.show();
+            Toast.makeText(context, "Restaurant Saved", Toast.LENGTH_LONG).show();
+            final ParseObject fullReviewObj;
+            if(fullReviewModel.parseObject == null)
+                fullReviewObj = new ParseObject("FullReview");
+            else
+                fullReviewObj = fullReviewModel.parseObject;
+
+            fullReviewObj.put("restaurantId", restaurant.parseObject);
+            fullReviewObj.put("userId", ParseUser.getCurrentUser());
+            fullReviewObj.put("delivery_time", "00");
+            fullReviewObj.put("recommend_to_others", false);
+            fullReviewObj.put("comments", instant_zero_comment_st);
+            fullReviewObj.put("averageRating", 0);
+            fullReviewObj.put("instant_zero", true);
+
+            fullReviewObj.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        Toast.makeText(getContext(), "FullReview Saved", Toast.LENGTH_LONG).show();
+
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        currentUser.setACL(new ParseACL(currentUser));
+                        currentUser.saveInBackground();
+                        dialog.dismiss();
+                        pd.dismiss();
+
+                        Toast.makeText(context, "Instant Zero Saved!!!!", Toast.LENGTH_SHORT).show();
+                        reloadFragment();
+                        /*Intent i = new Intent(getContext(), MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(i);*/
+                    } else {
+                        dialog.dismiss();
+                        pd.dismiss();
+                        Toast.makeText(getContext(), "Error saving fullReview", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        } else {
+            final ParseObject restaurantObj = new ParseObject("Restaurant");
+            restaurantObj.put("place_id", restaurant.PlaceId);
+            restaurantObj.put("id", restaurant.ID);
+            restaurantObj.put("latitude", restaurant.latitude);
+            restaurantObj.put("longitude", restaurant.longitude);
+            restaurantObj.put("name", restaurant.restaurant_name);
+            restaurantObj.put("vicinity", restaurant.vicinity);
+            restaurantObj.put("icon_url", restaurant.icon_url);
+
+            ParseGeoPoint geoPoint = new ParseGeoPoint(restaurant.latitude, restaurant.longitude);
+            restaurantObj.put("location", geoPoint);
+
+            restaurantObj.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        restaurant.parseObject = restaurantObj;
+                        Toast.makeText(getContext(), "Restaurant Saved", Toast.LENGTH_LONG).show();
+                        final ParseObject fullReviewObj = new ParseObject("FullReview");
+
+                        fullReviewObj.put("restaurantId", restaurantObj);
+                        fullReviewObj.put("userId", ParseUser.getCurrentUser());
+                        fullReviewObj.put("delivery_time", "00");
+                        fullReviewObj.put("recommend_to_others", false);
+                        fullReviewObj.put("comments", instant_zero_comment_st);
+                        fullReviewObj.put("averageRating", 0);
+                        fullReviewObj.put("instant_zero", true);
+
+                        fullReviewObj.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    Toast.makeText(getContext(), "FullReview Saved", Toast.LENGTH_LONG).show();
+
+                                    ParseUser currentUser = ParseUser.getCurrentUser();
+                                    currentUser.setACL(new ParseACL(currentUser));
+                                    currentUser.saveInBackground();
+                                    dialog.dismiss();
+                                    pd.dismiss();
+                                    Toast.makeText(context, "Instant Zero Saved!!!!", Toast.LENGTH_SHORT).show();
+                                    reloadFragment();
+                                    /*Intent i = new Intent(getContext(), MainActivity.class);
+                                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(i);*/
+                                } else {
+                                    dialog.dismiss();
+                                    pd.dismiss();
+                                    Toast.makeText(getContext(), "Error saving fullReview", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    } else {
+                        Toast.makeText(getContext(), "Error saving restaurant", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+    }
+
+    public void reloadFragment(){
+
+        if(StorageHelper.backtoUserInvites){
+            StorageHelper.backtoUserInvites = false;
+            userInvites userinvites = new userInvites();
+            android.support.v4.app.FragmentTransaction trans1 = ((AppCompatActivity) getContext()).getSupportFragmentManager()
+                    .beginTransaction();
+            trans1.replace(R.id.frame_container,userinvites).addToBackStack(null).commit();
+
+        }else{
+            StorageHelper.shareReview = true;
+            StorageHelper.uiBlock = true;
+            Bundle bundle = new Bundle();
+            bundle.putString("reataurant_name_st" , this.restaurant.restaurant_name);
+
+            bundle.putFloat("total_rating_stars_float" , finalRating_value);
+            bundle.putString("total_rating_st" , String.valueOf(averageRating));
+            bundle.putParcelable("fullReview" , tempFullReview);
+            addReviewfrag addreview = new addReviewfrag();
+            addreview.setArguments(bundle);
+            android.support.v4.app.FragmentTransaction trans1 = ((AppCompatActivity) getContext()).getSupportFragmentManager()
+                    .beginTransaction();
+            trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
+        }
     }
 }

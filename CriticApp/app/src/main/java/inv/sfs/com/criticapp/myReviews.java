@@ -63,7 +63,7 @@ public class myReviews extends Fragment{
     }
 
     public void getReviews(){
-
+            fullReviews_list.clear();
             pd.show();
             ParseQuery<ParseObject> parseQuery = new ParseQuery<>("FullReview");
             parseQuery.whereEqualTo("userId", ParseUser.getCurrentUser());

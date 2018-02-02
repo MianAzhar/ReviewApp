@@ -66,7 +66,6 @@ import static android.app.Activity.RESULT_OK;
  */
 public class addReviewfrag extends Fragment implements View.OnClickListener {
 
-
     private static final int SELECT_PICTURE = 1;
     Uri selectedImageUri;
     ParseFile parse_image_file = null;
@@ -180,6 +179,10 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
             total_rating_stars_float = getArguments().getFloat("total_rating_stars_float");
 
 
+            StorageHelper.reataurant_name_st = reataurant_name_st;
+            StorageHelper.total_rating_st = total_rating_st;
+            StorageHelper.total_rating_stars_float = total_rating_stars_float;
+
             restaurant_name_tv.setText(reataurant_name_st);
             criticScore_tv.setText(total_rating_st);
             rating_bar_rb.setRating(total_rating_stars_float);
@@ -187,17 +190,16 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         }catch (Exception e){
         }
 
-
         if(StorageHelper.shareReview){
-            StorageHelper.shareReview = false;
-            share_lay.setVisibility(View.VISIBLE);
+            //StorageHelper.shareReview = false;
+            share_lay.setVisibility(View.GONE);
         }
 
         if(StorageHelper.uiBlock){
             instant_btn.setVisibility(View.GONE);
-            view_review_extra_lay.setVisibility(View.VISIBLE);
+            view_review_extra_lay.setVisibility(View.GONE);
         }else{
-            instant_btn.setVisibility(View.VISIBLE);
+            instant_btn.setVisibility(View.GONE);
             view_review_extra_lay.setVisibility(View.GONE);
         }
 

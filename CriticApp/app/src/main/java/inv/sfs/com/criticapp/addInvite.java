@@ -52,7 +52,6 @@ import static android.app.Activity.RESULT_OK;
 public class addInvite extends Fragment implements View.OnClickListener {
 
 
-
     ParseObject obj;
     TextView select_date;
     ImageView select_photo;
@@ -79,7 +78,7 @@ public class addInvite extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -145,8 +144,6 @@ public class addInvite extends Fragment implements View.OnClickListener {
                         if (e == null){
                             //pd.dismiss();
                             getUsers();
-
-
                         }else{
                             pd.dismiss();
                             Log.d("Result" , "Some Error While Adding");
@@ -162,9 +159,8 @@ public class addInvite extends Fragment implements View.OnClickListener {
     public void getUsers(){
         ParseGeoPoint geoPoint = ParseUser.getCurrentUser().getParseGeoPoint("lastknownlocation");
 
-
-        ParseQuery<ParseObject> parseQuery = new ParseQuery<>("User");
-        parseQuery.whereWithinMiles("lastknownlocation" , geoPoint , 5);
+        ParseQuery<ParseObject> parseQuery = new ParseQuery<>("_User");
+        parseQuery.whereWithinMiles("lastknownlocation" , geoPoint , 20);
         parseQuery.whereNotEqualTo("objectId" , ParseUser.getCurrentUser().getObjectId());
         parseQuery.setLimit(1000);
 
@@ -188,11 +184,9 @@ public class addInvite extends Fragment implements View.OnClickListener {
                         } catch (ParseException e1) {
                             e1.printStackTrace();
                         }
-
                         sendNotifications(list);
-
                     } else{
-                        Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Error getting Users", Toast.LENGTH_SHORT).show();
                         Log.d("Result", "Empty");
                         pd.dismiss();
                     }
@@ -202,8 +196,6 @@ public class addInvite extends Fragment implements View.OnClickListener {
                 }
             }
         });
-
-
     }
 
     public void sendNotifications(List <ParseObject> objects){
@@ -212,6 +204,11 @@ public class addInvite extends Fragment implements View.OnClickListener {
         pushQuery.whereContainedIn("user" , objects);
 
         ParseObject currUser =  ParseUser.getCurrentUser().getParseObject("restaurant");
+
+        try{
+            currUser.fetchIfNeeded();
+        }catch (Exception e){
+        }
         currUser.get("name").toString();
         String message = currUser.get("name").toString();
         ParsePush push = new ParsePush();
@@ -222,6 +219,7 @@ public class addInvite extends Fragment implements View.OnClickListener {
             public void done(ParseException e){
 
                 if(e == null){
+                    pd.dismiss();
                     Toast.makeText(getActivity(), "Invite sent", Toast.LENGTH_SHORT).show();
                     inviteSuccess success = new inviteSuccess();
                     android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();

@@ -18,7 +18,9 @@
             android:background="@drawable/circle_red"
             android:text="20"
             android:textAlignment="center"
+            android:textColor="@color/white"
             android:textSize="20dp"
+            android:id="@+id/avgRating"
             android:textStyle="bold"
             android:paddingLeft="2dp"
             android:paddingTop="25dp"
@@ -33,28 +35,28 @@
             android:weightSum="1">
 
             <TextView
+                android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="0.45"
-                android:text="Restaurant Name"
-                android:textColor="@color/black"
                 android:layout_gravity="center_vertical"
+                android:layout_weight="0.45"
                 android:gravity="center"
-                android:textAlignment="textStart"
                 android:paddingLeft="3dp"
-                android:textStyle="bold"
-                android:id="@+id/name"
-                android:textSize="16dp"/>
+                android:text="Restaurant Name"
+                android:textAlignment="textStart"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/address"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.55"
+                android:paddingLeft="3dp"
                 android:text="Restaurant Address"
                 android:textColor="@color/black"
-                android:paddingLeft="3dp"
-                android:id="@+id/address"
-                android:textSize="15dp"/>
+                android:textSize="15dp" />
         </LinearLayout>
 
     </LinearLayout>
@@ -70,13 +72,12 @@
         android:paddingRight="10dp"
         android:layout_marginTop="10dp"
         android:textColor="@color/black"
-        android:text="You are Invited to join other Critics to review the Above Restaurant:"
+        android:text="You are Invited to get Discount"
         android:textSize="19dp"
         android:textStyle="bold"
-        android:textAlignment="center"
-        />
+        android:textAlignment="center"/>
 
-    <TextView
+    <!--<TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
@@ -86,7 +87,7 @@
         android:text="Start Time 7:30PM"
         android:textSize="19dp"
         android:textStyle="bold"
-        android:textAlignment="center"/>
+        android:textAlignment="center"/>-->
 
     <LinearLayout
         android:layout_width="80dp"
@@ -125,8 +126,9 @@
         android:paddingRight="10dp"
         android:layout_marginTop="10dp"
         android:textColor="@color/black"
-        android:text="Please RSVP if you are able to join us in the fun group Critic Review"
+        android:text="Please RSVP to Redeem your Discount Coupon."
         android:textSize="16dp"
+        android:id="@+id/rsvp_text"
         android:textAlignment="center"/>
 
 
@@ -134,6 +136,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:id="@+id/buttons_containor"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="5dp">
@@ -161,11 +164,30 @@
             android:background="@drawable/standard_btn"/>
     </LinearLayout>
 
-    <ImageView
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="5px"
-        android:background="@drawable/ic_map"/>
+        android:orientation="vertical"
+        android:layout_weight="2">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:textColor="@color/black"
+            android:id="@+id/promo_text"
+            android:textSize="20dp"
+            android:text=""
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:textAlignment="center"/>
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/promo_image"
+            android:layout_weight="1.5"/>
+
+    </LinearLayout>
 </LinearLayout>

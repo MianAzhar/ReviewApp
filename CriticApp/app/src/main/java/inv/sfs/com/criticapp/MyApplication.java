@@ -2,9 +2,12 @@ package inv.sfs.com.criticapp;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by applepc on 27/01/2018.
@@ -24,6 +27,7 @@ public class MyApplication extends Application {
         installation.put("GCMSenderId", "906152729781");
         installation.saveInBackground();
         FacebookSdk.sdkInitialize(this);
+        Fabric.with(this, new Crashlytics());
     }
 
 

@@ -20,6 +20,7 @@
             android:layout_gravity="center_vertical"
             android:text="20"
             android:textSize="20dp"
+            android:id="@+id/rating_value"
             android:paddingLeft="27dp"
             android:paddingTop="25dp"
             android:textStyle="bold"
@@ -73,10 +74,10 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:id="@+id/custom_month"
                 android:text="MAR"
                 android:textAlignment="center"
                 android:textSize="17dp"
-                android:id="@+id/custom_month"
                 android:textColor="@color/white"/>
 
             <TextView

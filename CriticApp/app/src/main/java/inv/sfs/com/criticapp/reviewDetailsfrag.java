@@ -79,7 +79,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
         super.onActivityCreated(savedInstanceState);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("Critic Scores");
+        actionBar.setTitle("Critic Reviews");
 
         ratingsCount.add(0);
         ratingsCount.add(0);

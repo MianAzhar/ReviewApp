@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity
             invite_owner.setVisible(true);
 
             MenuItem invite_users = menu.findItem(R.id.invite_users);
-            invite_users.setVisible(true);
+            invite_users.setVisible(false);
 
             MenuItem my_reviews = menu.findItem(R.id.my_reviews);
             my_reviews.setVisible(true);
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity
             my_reviews.setVisible(true);
 
             MenuItem my_events = menu.findItem(R.id.my_events);
-            my_events.setVisible(true);
+            my_events.setVisible(false);
 
             MenuItem reports = menu.findItem(R.id.reports);
             reports.setVisible(true);
@@ -164,13 +164,22 @@ public class MainActivity extends AppCompatActivity
 
             MenuItem logout = menu.findItem(R.id.logout);
             logout.setVisible(false);
-
         }
-
-
-            home dashboard_fragment = new home();
-            android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
-            trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
+            if(StorageHelper.alternative_login){
+                StorageHelper.alternative_login = false;
+                StorageHelper.uiBlock = false;
+                Bundle bundle = new Bundle();
+                bundle.putString("position" , StorageHelper.alternative_login_position);
+                addReviewfrag addreview = new addReviewfrag();
+                addreview.setArguments(bundle);
+                android.support.v4.app.FragmentTransaction ft = ((AppCompatActivity) this).getSupportFragmentManager()
+                        .beginTransaction();
+                ft.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
+            }else{
+                home dashboard_fragment = new home();
+                android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+                trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
+            }
 
     }
 
@@ -281,7 +290,7 @@ public class MainActivity extends AppCompatActivity
             trans1.replace(R.id.frame_container,allReviews).addToBackStack(null).commit();
          } else if (id == R.id.nav_send){
 
-        }else if(id == R.id.invite_users){
+        }else if(id == R.id.invite_owner){
             userInvites dashboard_fragment = new userInvites();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();

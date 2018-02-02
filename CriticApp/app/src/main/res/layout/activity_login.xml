@@ -26,14 +26,14 @@
             android:src="@drawable/profile_user"/>
 
         <EditText
+            android:id="@+id/username"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:id="@+id/username"
             android:layout_weight="0.9"
-            android:inputType="textEmailAddress"
             android:background="@android:color/transparent"
-            android:paddingLeft="10dp"
-            android:hint="User Name"/>
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:paddingLeft="10dp"/>
 
     </LinearLayout>
 

@@ -14,6 +14,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.KeyEvent;
@@ -45,6 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -118,6 +121,10 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setTitle("The Critic View");
+
         marshMallowPermission = new MarshMallowPermission(getActivity());
         pd = new TransparentProgressDialog(getActivity(), R.drawable.loader);
         helperfunctions = new HelperFunctions();
@@ -140,30 +147,28 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         mapFragment.getMapAsync(this);
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
 
-        if(haveNetworkConnection()){
-            getLastKnownLocation();
-            if(StorageHelper.filter_results){
-                StorageHelper.filter_results = false;
-                getFilteredRestaurants();
-            }else{
-                getAllRestaurants();
+        //Check if Restaurants are already there Or Not
+
+        if(StorageHelper.restaurants_generic_list.size() == 0) {
+            if (haveNetworkConnection()) {
+                getLastKnownLocation();
+                if (StorageHelper.filter_results) {
+                    StorageHelper.filter_results = false;
+                    getFilteredRestaurants();
+                } else {
+                    getAllRestaurants();
+                }
+            } else {
+                Toast.makeText(getActivity(), "Enable Internet to Use app", Toast.LENGTH_SHORT).show();
             }
-        }else{
-            Toast.makeText(getActivity(), "Enable Internet to Use app", Toast.LENGTH_SHORT).show();
         }
+
 
         search_text.setOnEditorActionListener(new TextView.OnEditorActionListener(){
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    search_text_st = search_text.getText().toString();
-                    if(search_text_st.equals("")){
-                        Toast.makeText(getActivity(), "Enter Text", Toast.LENGTH_SHORT).show();
-                    }else{
-                        searchText = search_text_st;
-                        mMap.clear();
-                        getAllRestaurants();
-                    }
+                    SearchRestaurants();
                     return true;
                 }
                 return false;
@@ -244,14 +249,23 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             latitude = bestLocation.getLatitude();
             longitude = bestLocation.getLongitude();
 
+            StorageHelper.latitude = latitude;
+            StorageHelper.longitude = longitude;
+
+
             if(ParseUser.getCurrentUser() != null){
-                try {
-                    ParseGeoPoint geoPoint = new ParseGeoPoint(latitude, longitude);
-                    ParseUser.getCurrentUser().put("lastknownlocation",geoPoint);
-                    ParseUser.getCurrentUser().save();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+
+                ParseGeoPoint geoPoint = new ParseGeoPoint(latitude, longitude);
+                ParseUser currentUser = ParseUser.getCurrentUser();
+
+                currentUser.put("lastknownlocation",geoPoint);
+
+                ParseACL acl = new ParseACL();
+                acl.setPublicReadAccess(true);
+                acl.setWriteAccess(currentUser,true);
+                currentUser.setACL(acl);
+
+                currentUser.saveInBackground();
             }
         }
     }
@@ -277,7 +291,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         restaurants_list.clear();
         pd.show();
         myrequests = Volley.newRequestQueue(getActivity());
-        String url = helperfunctions.getUrl(latitude, longitude, next_pg_token, searchText, HelperFunctions.PROXIMITY_RADIUS);
+        String url = helperfunctions.getUrl(StorageHelper.latitude, StorageHelper.longitude, next_pg_token, searchText, HelperFunctions.PROXIMITY_RADIUS);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url, new Response.Listener<JSONObject>(){
             @Override
             public void onResponse(JSONObject response){
@@ -300,6 +314,35 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         });
         myrequests.add(jsonObjectRequest);
     }
+
+    @Override
+    public void onResume(){
+
+        if(StorageHelper.rest_searched){
+            search_text.setText("");
+            StorageHelper.rest_searched = false;
+            StorageHelper.restaurants_generic_list.clear();
+            for (int i = 0 ; i < StorageHelper.backup_restaurant_list.size();i++){
+                StorageHelper.restaurants_generic_list.add(StorageHelper.backup_restaurant_list.get(i));
+            }
+            StorageHelper.backup_restaurant_list.clear();
+            if(mMap != null){
+                mMap.clear();
+            }
+           //PlotMap();
+        }
+        Toast.makeText(getContext(), "On Resume Called", Toast.LENGTH_SHORT).show();
+        Log.e("DEBUG", "onResume of HomeFragment");
+        super.onResume();
+    }
+
+    @Override
+    public void onPause(){
+        Toast.makeText(getContext(), "On Pause Called", Toast.LENGTH_SHORT).show();
+        Log.e("DEBUG", "OnPause of HomeFragment");
+        super.onPause();
+    }
+
 
     //---- Get Filtered Restaurants-----//
     public void getFilteredRestaurants(){
@@ -403,9 +446,11 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     }
 
     public void PlotMap(){
+        if(mMap == null){
+            return;
+        }
         for (int i = 0; i < restaurants_list.size(); i++){
             marker = new MarkerOptions().position(new LatLng(restaurants_list.get(i).latitude, restaurants_list.get(i).longitude)).title(restaurants_list.get(i).restaurant_name);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(restaurants_list.get(i).latitude, restaurants_list.get(i).longitude)));
             marker.icon(BitmapDescriptorFactory.fromBitmap(HelperFunctions.getMarkerBitmapFromView(R.drawable.marker_bg, getContext(), String.valueOf(restaurants_list.get(i).avgRating))));
             mMap.addMarker(marker);
         }
@@ -414,30 +459,29 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         pd.dismiss();
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap){
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
 
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             //bulidGoogleApiClient();
              mMap.setMyLocationEnabled(true);
         }
+
+        if(StorageHelper.restaurants_generic_list.size() != 0){
+            PlotMap();
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(StorageHelper.latitude, StorageHelper.longitude)));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
+        }
     }
 
     @Override
     public void onClick(View v){
         if(v.getId() == search_icon.getId() || v.getId() == search_lay.getId()){
-           search_text_st = search_text.getText().toString();
-            if(search_text_st.equals("")){
-                Toast.makeText(getActivity(), "Empty String", Toast.LENGTH_SHORT).show();
-            }else{
-                searchText = search_text_st;
-                mMap.clear();
-                getAllRestaurants();
-             }
+            SearchRestaurants();
          }else if(v.getId() == refresh_iv.getId()){
             mMap.clear();
             searchText="";
@@ -445,6 +489,22 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             getAllRestaurants();
         }
     }
+
+    public void SearchRestaurants(){
+        search_text_st = search_text.getText().toString();
+        if(search_text_st.equals("")){
+            Toast.makeText(getActivity(), "Empty String", Toast.LENGTH_SHORT).show();
+        }else{
+            for (int i = 0 ; i < StorageHelper.restaurants_generic_list.size();i++){
+                StorageHelper.backup_restaurant_list.add(StorageHelper.restaurants_generic_list.get(i));
+            }
+            StorageHelper.rest_searched = true;
+            searchText = search_text_st;
+            mMap.clear();
+            getAllRestaurants();
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

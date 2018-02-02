@@ -52,8 +52,9 @@ public class allReviewsfrag extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("Critic Reviews");
+        actionBar.setTitle("The Critic View");
 
         top10SortedRestaurants = StorageHelper.sortforTop10(StorageHelper.restaurants_generic_list);
         reviews_list = (ListView) getView().findViewById(R.id.reviews_list);

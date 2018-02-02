@@ -62,6 +62,7 @@ public class criticScores extends Fragment {
 
     public void getReviews(){
 
+        fullReviews_list.clear();
         pd.show();
         ParseQuery<ParseObject> parseQuery = new ParseQuery<>("FullReview");
         parseQuery.whereEqualTo("restaurantId", ParseUser.getCurrentUser().get("restaurant"));

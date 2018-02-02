@@ -70,16 +70,19 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
         LayoutInflater inflater=context.getLayoutInflater();
         View rowView = null;
 
-        LinearLayout be_a_critic_lay = null;
+        LinearLayout be_a_critic_lay , container_lay;
         RatingBar rating_bar_top = null;
         TextView restaurant_name = null;
+        TextView no_of_reviews,be_first;
 
         if(position == 0){
             rowView=inflater.inflate(R.layout.criticscoretoplayout, null,true);
             be_a_critic_lay = (LinearLayout) rowView.findViewById(R.id.be_a_critic_lay);
             restaurant_name = (TextView) rowView.findViewById(R.id.restaurant_name);
             rating_bar_top = (RatingBar) rowView.findViewById(R.id.rating_bar);
-
+            no_of_reviews = (TextView) rowView.findViewById(R.id.no_of_reviews);
+            be_first = (TextView) rowView.findViewById(R.id.be_first);
+            container_lay = (LinearLayout) rowView.findViewById(R.id.container_lay);
             TextView criticScore = (TextView)rowView.findViewById(R.id.criticScore);
 
             criticScore.setText(String.valueOf(currentRestaurant.avgRating));
@@ -89,7 +92,19 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
             total_rating_stars_float =  star;
             reataurant_name_st = StorageHelper.restaurants_generic_list.get(position_).restaurant_name;
             total_rating_st = String.valueOf(currentRestaurant.avgRating);
+            String reviews_count;
+            try{
+                reviews_count = String.valueOf(currentRestaurant.reviews.size());
+                if(currentRestaurant.reviews.size() == 0){
+                    container_lay.setVisibility(View.VISIBLE);
+                }else {
+                    container_lay.setVisibility(View.GONE);
+                }
+            }catch (Exception e){
+                reviews_count = "0";
+            }
 
+            no_of_reviews.setText("Reviews: " + reviews_count);
             ProgressBar progress_1 = (ProgressBar)rowView.findViewById(R.id.progress_1);
             ProgressBar progress_2 = (ProgressBar)rowView.findViewById(R.id.progress_2);
             ProgressBar progress_3 = (ProgressBar)rowView.findViewById(R.id.progress_3);
@@ -152,6 +167,8 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
                                 .beginTransaction();
                         ft.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
                     }else{
+                        StorageHelper.alternative_login = true;
+                        StorageHelper.alternative_login_position = position_.toString();
                         Intent i = new Intent(getContext(), login.class);
                         getContext().startActivity(i);
                        //Toast.makeText(getContext(), "Please Login", Toast.LENGTH_SHORT).show();
@@ -160,22 +177,23 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
             });
 
          }else{
-           rowView=inflater.inflate(R.layout.restaurantsreviewlayout, null,true);
+            rowView=inflater.inflate(R.layout.restaurantsreviewlayout, null,true);
             TextView name = (TextView) rowView.findViewById(R.id.name);
             RatingBar rating_bar = (RatingBar) rowView.findViewById(R.id.rating_bar);
             TextView comments = (TextView) rowView.findViewById(R.id.comments);
             TextView score = (TextView)rowView.findViewById(R.id.userScore);
             LinearLayout review_lay = (LinearLayout) rowView.findViewById(R.id.review_lay);
+            LinearLayout container_layout = (LinearLayout) rowView.findViewById(R.id.container_layout);
 
             try{
-                ParseObject review = currentRestaurant.reviews.get(position - 1);
-               // review = review.fetch();
-                ParseObject userObj = review.getParseObject("userId");
-                name.setText(userObj.getString("name"));
-                float star = ((float)review.getInt("averageRating")) / 90 * 5;
-                rating_bar.setRating(star);
-                comments.setText(review.getString("comments"));
-                score.setText(String.valueOf(review.getInt("averageRating")));
+                    ParseObject review = currentRestaurant.reviews.get(position - 1);
+                    ParseObject userObj = review.getParseObject("userId");
+                    name.setText(userObj.getString("name"));
+                    float star = ((float)review.getInt("averageRating")) / 90 * 5;
+                    rating_bar.setRating(star);
+                    comments.setText(review.getString("comments"));
+                    score.setText(String.valueOf(review.getInt("averageRating")));
+
             }catch (Exception e){
             }
         }
