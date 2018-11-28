@@ -2,18 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:weightSum="1"
+        android:layout_height="wrap_content"
+
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.5"
+            android:layout_height="60dp"
+
             android:orientation="horizontal"
             android:layout_gravity="center_vertical"
             android:weightSum="1">
@@ -47,9 +48,20 @@
                     android:id="@+id/rating_bar_overall_appeal"
                     android:stepSize="1.0"
                     android:rating="0"
+                    android:visibility="visible"
                     android:layout_centerHorizontal="true"/>
+                <RatingBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:isIndicator="true"
+                    android:id="@+id/rating_bar_overall_appeal_disabled"
+                    android:stepSize="1.0"
+                    android:rating="3"
+                    android:foregroundGravity="center_vertical"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="gone"/>
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -58,69 +70,61 @@
                 android:layout_weight="0.73"
                 android:orientation="horizontal"
                 android:id="@+id/stars_layout"
-                android:weightSum="1">
+                android:weightSum="1"
+                android:visibility="visible"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.2"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/hollow_circle"
                     android:text="1"
-                    android:paddingLeft="20dp"
+                    android:gravity="center"
                     android:id="@+id/tv_one"
-                    android:paddingTop="14dp"
                     android:backgroundTint="@color/app_basic_color"
                     android:textColor="@color/app_basic_color"
                     android:textSize="20dp"/>
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.2"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/hollow_circle"
                     android:text="2"
                     android:id="@+id/tv_two"
-                    android:paddingLeft="20dp"
-                    android:paddingTop="14dp"
+                    android:gravity="center"
                     android:backgroundTint="@color/app_basic_color"
                     android:textColor="@color/app_basic_color"
                     android:textSize="20dp" />
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.2"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/hollow_circle"
                     android:text="3"
                     android:id="@+id/tv_three"
-                    android:paddingLeft="20dp"
-                    android:paddingTop="14dp"
+                    android:gravity="center"
                     android:backgroundTint="@color/app_basic_color"
                     android:textColor="@color/app_basic_color"
                     android:textSize="20dp" />
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.2"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/hollow_circle"
                     android:text="4"
-                    android:paddingLeft="20dp"
+                    android:gravity="center"
                     android:id="@+id/tv_four"
-                    android:paddingTop="14dp"
                     android:backgroundTint="@color/app_basic_color"
                     android:textColor="@color/app_basic_color"
                     android:textSize="20dp" />
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.2"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/hollow_circle"
                     android:text="5"
-                    android:paddingLeft="20dp"
+                    android:gravity="center"
                     android:id="@+id/tv_five"
-                    android:paddingTop="14dp"
                     android:backgroundTint="@color/app_basic_color"
                     android:textColor="@color/app_basic_color"
                     android:textSize="20dp" />
@@ -130,14 +134,17 @@
         <EditText
             android:id="@+id/comments_tv"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:paddingLeft="5dp"
-            android:layout_weight="0.5"
             android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/rounded_edittext_bottom_white"
             android:textColorHint="#E6D6DB"
-             android:hint="Comment: "/>
+            android:minLines="3"
+            android:maxLines="20"
+            android:inputType="textMultiLine"
+            android:hint="Comment: "/>
     </LinearLayout>
 </LinearLayout>

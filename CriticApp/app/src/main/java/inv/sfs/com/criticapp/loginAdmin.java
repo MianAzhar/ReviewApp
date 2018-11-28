@@ -11,7 +11,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.LogInCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
@@ -22,7 +24,7 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
     EditText email_et, pass_et;
     String username_st, password_st;
     TransparentProgressDialog pd;
-    TextView auth_error;
+    TextView auth_error, forgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -40,6 +42,9 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
         preference = PrefrencesHelper.getInstance(this);
         pd = new TransparentProgressDialog(this, R.drawable.loader);
         auth_error = (TextView) findViewById(R.id.auth_error);
+        forgotPassword = findViewById(R.id.forgot_password_tv);
+
+        forgotPassword.setOnClickListener(this);
     }
 
     @Override
@@ -63,6 +68,21 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
                                 installation.put("user", ParseUser.getCurrentUser());
                                 installation.saveInBackground();
 
+                                if(StorageHelper.latitude != 0){
+
+                                    ParseGeoPoint geoPoint = new ParseGeoPoint(StorageHelper.latitude, StorageHelper.longitude);
+                                    ParseUser currentUser = ParseUser.getCurrentUser();
+
+                                    currentUser.put("lastknownlocation",geoPoint);
+
+                                    ParseACL acl = new ParseACL();
+                                    acl.setPublicReadAccess(true);
+                                    acl.setWriteAccess(currentUser,true);
+                                    currentUser.setACL(acl);
+
+                                    currentUser.saveInBackground();
+                                }
+
                                 preference.setBoolObject("admin_logged_in" , true);
                                 Intent i = new Intent(loginAdmin.this , MainActivity.class);
                                 startActivity(i);
@@ -81,6 +101,9 @@ public class loginAdmin extends AppCompatActivity implements View.OnClickListene
                     }
                 });
             }
+        }  else if(v.getId() == forgotPassword.getId()){
+            Intent i = new Intent(this , ForgotPasswordActivity.class);
+            startActivity(i);
         }
     }
 

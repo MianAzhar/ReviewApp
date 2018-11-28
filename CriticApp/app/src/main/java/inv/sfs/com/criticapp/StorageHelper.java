@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
+import com.android.volley.RequestQueue;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.Notification;
+import inv.sfs.com.criticapp.Models.Rating;
 import inv.sfs.com.criticapp.Models.Restaurant;
 
 /**
@@ -25,6 +27,7 @@ import inv.sfs.com.criticapp.Models.Restaurant;
 
 public class StorageHelper {
 
+    public static boolean shouldReloadData = true;
     public static String is_admin_login;
     public static ArrayList<Restaurant> restaurants_generic_list =new ArrayList<Restaurant>();
     public static ArrayList<Restaurant> searched_restaurant_list =new ArrayList<Restaurant>();
@@ -43,11 +46,14 @@ public class StorageHelper {
     public static boolean rest_searched = false;
     public static boolean alternative_login = false;
     public static String alternative_login_position;
+    public static boolean isNewReview;
+    public static ArrayList<Rating> ratingArrayList;
 
     //As instant zero Is in ListView Now
     public static String reataurant_name_st;
     public static String total_rating_st;
     public static float total_rating_stars_float;
+
 
 
     public static ArrayList<Restaurant> sortforTop10(ArrayList<Restaurant> array){
@@ -67,28 +73,49 @@ public class StorageHelper {
         return array;
     }
 
-
+    public static RequestQueue requestQueue;
 
     public final static List<Integer> Colors = Arrays.asList(
-            0xfffef1b5,
+            0xfff11047,
+            0xff4a750b,
+            0xff3541cf,
+            0xffdaa12e,
+            0xff8bb14f,
+            0xffab1210,
+            0xff34657e,
+            0xffffbe3b,
+            0xff3b6e22,
+            0xfff96ff7,
+            0xffa62f26,
+            0xffdea222,
+            0xffea016d,
+            0xff74522f,
+            0xff1b3542,
+            0xff7f635e,
+            0xffa7a19d,
+            0xff462d1d);
+
+    /*
+    public final static List<Integer> Colors = Arrays.asList(
+            0xffc9b92b,
             0xffFC8EAC,
             0xffFFDF00,
             0xffFF7F00,
             0xffFF0000,
             0xff008000,
             0xff0000FF,
-            0xffE5E4E2,
-            0xffC0C0C0,
-            0xffFFFF00,
+            0xff0c5e59,
+            0xffff00c1,
             0xff5D8AA8,
             0xff2f70e1,
             0xff53d76a,
+            0xffC0C0C0,
             0xffddaa3b,
             0xffe5000f,
-            0xfffce6c9,
+            0xffff9100,
             0xffdeb697,
             0xff462d1d);
-
+    */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static Calendar toCalendar(Date date){
         Calendar cal = Calendar.getInstance();

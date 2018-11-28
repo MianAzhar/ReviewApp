@@ -44,7 +44,7 @@ public class filter extends AppCompatActivity implements View.OnClickListener{
 
                  if(isChecked){
                     if(StorageHelper.filters_list.indexOf("fast_food") == -1){
-                        StorageHelper.filters_list.add("fas)_tfood");
+                        StorageHelper.filters_list.add("fast_food");
                     }
                 }else{
                     if(StorageHelper.filters_list.indexOf("fast_food") != -1){
@@ -119,6 +119,7 @@ public class filter extends AppCompatActivity implements View.OnClickListener{
     public void onClick(View v){
         if(v.getId() == done_btn.getId()){
             StorageHelper.filter_results = true;
+            StorageHelper.shouldReloadData = true;
             Intent i = new Intent(this , MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);

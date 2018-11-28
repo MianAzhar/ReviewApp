@@ -2,7 +2,10 @@ package inv.sfs.com.criticapp;
 
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -10,11 +13,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.InflateException;
@@ -25,7 +30,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,6 +51,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
@@ -57,6 +65,7 @@ import com.parse.ParseUser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +103,17 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     int i = 0;
     Boolean back_pressed = false;
     private MarshMallowPermission marshMallowPermission;
+    private boolean shouldFilter = false;
+    SupportMapFragment mapFragment;
+    Dialog dialog;
+    Button indian_btn,chinese_btn, singaporean_btn, western_btn, malay_btn, halal_btn, hotpot_btn,
+    bbq_btn, thai_btn, fruits_btn, korean_btn, vietnamese_btn;
+    TextView skip_tv, next_tv;
+    ArrayList<String> selectedRestaurants = new ArrayList<String>();
+
 
     public home(){
+
     }
 
     @Override
@@ -123,7 +141,9 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
 
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("The Critic View");
+        actionBar.setTitle("The Critics View");
+
+        searchText = "";
 
         marshMallowPermission = new MarshMallowPermission(getActivity());
         pd = new TransparentProgressDialog(getActivity(), R.drawable.loader);
@@ -134,22 +154,59 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
                 marshMallowPermission.requestPermissionForExternalStorage(MarshMallowPermission.EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE_BY_LOAD_PROFILE);
             }
         }
+
+
+        dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.selectresttype);
+        Window window = dialog.getWindow();
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.setCanceledOnTouchOutside(false);
         search_icon = (ImageView) getActivity().findViewById(R.id.search_icon);
         search_icon.setOnClickListener(this);
         search_text = (EditText) getActivity().findViewById(R.id.search_text);
         search_lay = (LinearLayout) getActivity().findViewById(R.id.search_lay);
         refresh_iv = (ImageView) getActivity().findViewById(R.id.refresh_iv);
+        indian_btn = (Button) dialog.findViewById(R.id.indian);
+        chinese_btn = (Button) dialog.findViewById(R.id.chinese);
+        singaporean_btn = (Button) dialog.findViewById(R.id.singaporian);
+        western_btn = (Button) dialog.findViewById(R.id.western);
+        malay_btn = (Button) dialog.findViewById(R.id.malay);
+        halal_btn = (Button) dialog.findViewById(R.id.halal);
+        hotpot_btn = (Button) dialog.findViewById(R.id.hotpot);
+        bbq_btn = (Button) dialog.findViewById(R.id.bbq);
+        fruits_btn = (Button) dialog.findViewById(R.id.fruits);
+        korean_btn = (Button) dialog.findViewById(R.id.korean);
+        vietnamese_btn = (Button) dialog.findViewById(R.id.vietnamese);
+        thai_btn = (Button) dialog.findViewById(R.id.thai);
+        skip_tv = (TextView) dialog.findViewById(R.id.skip_tv);
+        next_tv = (TextView) dialog.findViewById(R.id.next_tv);
+
         refresh_iv.setOnClickListener(this);
         search_lay.setOnClickListener(this);
+        indian_btn.setOnClickListener(this);
+        chinese_btn.setOnClickListener(this);
+        singaporean_btn.setOnClickListener(this);
+        western_btn.setOnClickListener(this);
+        malay_btn.setOnClickListener(this);
+        halal_btn.setOnClickListener(this);
+        hotpot_btn.setOnClickListener(this);
+        bbq_btn.setOnClickListener(this);
+        thai_btn.setOnClickListener(this);
+        fruits_btn.setOnClickListener(this);
+        korean_btn.setOnClickListener(this);
+        vietnamese_btn.setOnClickListener(this);
+        skip_tv.setOnClickListener(this);
+        next_tv.setOnClickListener(this);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
+        mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
 
         //Check if Restaurants are already there Or Not
 
-        if(StorageHelper.restaurants_generic_list.size() == 0) {
+        if(StorageHelper.restaurants_generic_list.size() == 0 || StorageHelper.shouldReloadData) {
             if (haveNetworkConnection()) {
                 getLastKnownLocation();
                 if (StorageHelper.filter_results) {
@@ -161,6 +218,8 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             } else {
                 Toast.makeText(getActivity(), "Enable Internet to Use app", Toast.LENGTH_SHORT).show();
             }
+        } else if(StorageHelper.shouldReloadData){
+
         }
 
 
@@ -200,9 +259,11 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
                 }
                 return true;
             }
-        });
-    }
+        }
+        );
 
+       // dialog.show();
+    }
 
     private void backPressed(){
         if(!back_pressed){
@@ -251,7 +312,11 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
 
             StorageHelper.latitude = latitude;
             StorageHelper.longitude = longitude;
-
+            /*
+            if(mMap != null){
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(StorageHelper.latitude, StorageHelper.longitude)));
+            }
+            */
 
             if(ParseUser.getCurrentUser() != null){
 
@@ -273,25 +338,32 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-
         menu.clear();
         inflater.inflate(R.menu.main, menu);
         menu.findItem(R.id.list).setVisible(true);
         getActivity().invalidateOptionsMenu();
+
         super.onCreateOptionsMenu(menu, inflater);
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-
-        /*if(mMap == null){
-            getAllRestaurants();
-        }*/
     }
     //---- String Response ------//
     public void getAllRestaurants(){
+        StorageHelper.shouldReloadData = false;
+        shouldFilter = false;
         restaurants_list.clear();
         pd.show();
         myrequests = Volley.newRequestQueue(getActivity());
-        String url = helperfunctions.getUrl(StorageHelper.latitude, StorageHelper.longitude, next_pg_token, searchText, HelperFunctions.PROXIMITY_RADIUS);
+        Integer radius = HelperFunctions.PROXIMITY_RADIUS_25_MILES;
+
+        if(searchText == null)
+            searchText = "";
+
+        if(searchText.isEmpty()){
+            //radius = HelperFunctions.PROXIMITY_RADIUS_ONE_MILE;
+            radius = 500;
+        }
+
+
+        String url = helperfunctions.getUrl(StorageHelper.latitude, StorageHelper.longitude, next_pg_token, searchText, radius);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url, new Response.Listener<JSONObject>(){
             @Override
             public void onResponse(JSONObject response){
@@ -331,14 +403,14 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             }
            //PlotMap();
         }
-        Toast.makeText(getContext(), "On Resume Called", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "On Resume Called", Toast.LENGTH_SHORT).show();
         Log.e("DEBUG", "onResume of HomeFragment");
         super.onResume();
     }
 
     @Override
     public void onPause(){
-        Toast.makeText(getContext(), "On Pause Called", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "On Pause Called", Toast.LENGTH_SHORT).show();
         Log.e("DEBUG", "OnPause of HomeFragment");
         super.onPause();
     }
@@ -347,6 +419,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     //---- Get Filtered Restaurants-----//
     public void getFilteredRestaurants(){
         restaurants_list.clear();
+        shouldFilter = true;
         pd.show();
         myrequests = Volley.newRequestQueue(getActivity());
         String url = helperfunctions.getUrlFilter(latitude, longitude);
@@ -399,7 +472,43 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             getParseRestaurant(temp_restaurant);
             restaurants_list.add(temp_restaurant);
         }
-        PlotMap();
+
+        getPrivateRestaurants();
+    }
+
+    public void getPrivateRestaurants(){
+        ParseGeoPoint geoPoint = new ParseGeoPoint(StorageHelper.latitude, StorageHelper.longitude);
+
+        ParseQuery<ParseObject> parseQuery = new ParseQuery<>("Restaurant");
+        parseQuery.whereDoesNotExist("id");
+        parseQuery.whereWithinMiles("location", geoPoint, 5);
+
+        if(shouldFilter){
+            parseQuery.whereContainedIn("category", StorageHelper.filters_list);
+        }
+
+        parseQuery.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e == null){
+                    for(int i = 0; i < objects.size(); i++){
+                        ParseObject current = objects.get(i);
+                        Restaurant temp = new Restaurant();
+                        temp.parseObject = current;
+                        temp.restaurant_name = current.getString("name");
+                        temp.vicinity = current.getString("vicinity");
+                        temp.longitude = current.getDouble("longitude");
+                        temp.latitude = current.getDouble("latitude");
+
+                        restaurants_list.add(temp);
+                    }
+
+                    PlotMap();
+                } else {
+                    PlotMap();
+                }
+            }
+        });
     }
 
     public void getParseRestaurant(final Restaurant restaurant){
@@ -430,14 +539,19 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 int sum = 0;
+                int starSum = 0;
                 for(int i = 0; i < objects.size(); i++){
                     sum += objects.get(i).getInt("averageRating");
+                    if(objects.get(i).getNumber("overall_Rating") != null)
+                        starSum += objects.get(i).getNumber("overall_Rating").floatValue();
                 }
 
                 if(objects.size() == 0){
                     restaurant.avgRating = 0;
+                    restaurant.starRating = 0;
                 }else{
                     restaurant.avgRating = sum / objects.size();
+                    restaurant.starRating = starSum / objects.size();
                 }
                 restaurant.reviews = objects;
                 PlotMap();
@@ -454,7 +568,12 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             marker.icon(BitmapDescriptorFactory.fromBitmap(HelperFunctions.getMarkerBitmapFromView(R.drawable.marker_bg, getContext(), String.valueOf(restaurants_list.get(i).avgRating))));
             mMap.addMarker(marker);
         }
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
+
+        if(!searchText.isEmpty() && restaurants_list.size() > 0){
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(restaurants_list.get(0).latitude, restaurants_list.get(0).longitude)));
+        }
+
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
         StorageHelper.restaurants_generic_list = restaurants_list;
         pd.dismiss();
     }
@@ -462,6 +581,14 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap){
         mMap = googleMap;
+
+        boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+                .getString(R.string.style_json)));
+
+        if (!success) {
+            Toast.makeText(getActivity(), "Map failed", Toast.LENGTH_SHORT).show();
+        }
+
         mMap.setOnMarkerClickListener(this);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
 
@@ -474,7 +601,7 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
         if(StorageHelper.restaurants_generic_list.size() != 0){
             PlotMap();
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(StorageHelper.latitude, StorageHelper.longitude)));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
         }
     }
 
@@ -482,18 +609,182 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
     public void onClick(View v){
         if(v.getId() == search_icon.getId() || v.getId() == search_lay.getId()){
             SearchRestaurants();
-         }else if(v.getId() == refresh_iv.getId()){
+        }else if(v.getId() == refresh_iv.getId()){
             mMap.clear();
+
             searchText="";
-            getLastKnownLocation();
+            //getLastKnownLocation();
+
+            LatLng currentLoc = mMap.getCameraPosition().target;
+
+            StorageHelper.longitude = currentLoc.longitude;
+            StorageHelper.latitude = currentLoc.latitude;
+
             getAllRestaurants();
+        }else if(v.getId() == indian_btn.getId()){
+
+            if(!selectedRestaurants.contains("indian")){
+                selectedRestaurants.add("indian");
+                indian_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                indian_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("indian")){
+                selectedRestaurants.remove("indian");
+                indian_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                indian_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+        }else if(v.getId() == chinese_btn.getId()){
+
+            if(!selectedRestaurants.contains("chinese")){
+                selectedRestaurants.add("chinese");
+                chinese_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                chinese_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("chinese")){
+                selectedRestaurants.remove("chinese");
+                chinese_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                chinese_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+        }else if(v.getId() == singaporean_btn.getId()){
+
+            if(!selectedRestaurants.contains("singaporean")){
+                selectedRestaurants.add("singaporean");
+                singaporean_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                singaporean_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("singaporean")){
+                selectedRestaurants.remove("singaporean");
+                singaporean_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                singaporean_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+        }else if(v.getId() == western_btn.getId()){
+
+
+            if(!selectedRestaurants.contains("western")){
+                selectedRestaurants.add("western");
+                western_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                western_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("western")){
+                selectedRestaurants.remove("western");
+                western_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                western_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+        }else if(v.getId() == malay_btn.getId()){
+
+
+            if(!selectedRestaurants.contains("malay")){
+                selectedRestaurants.add("malay");
+                malay_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                malay_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("malay")){
+                selectedRestaurants.remove("malay");
+                malay_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                malay_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+        }else if(v.getId() == halal_btn.getId()){
+
+
+            if(!selectedRestaurants.contains("halal")){
+                selectedRestaurants.add("halal");
+                halal_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                halal_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("halal")){
+                selectedRestaurants.remove("halal");
+                halal_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                halal_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+
+        }else if(v.getId() == hotpot_btn.getId()){
+
+            if(!selectedRestaurants.contains("hotpot")){
+                selectedRestaurants.add("hotpot");
+                hotpot_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                hotpot_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("hotpot")){
+                selectedRestaurants.remove("hotpot");
+                hotpot_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                hotpot_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+
+        }else if(v.getId() == bbq_btn.getId()){
+
+            if(!selectedRestaurants.contains("bbq")){
+                selectedRestaurants.add("bbq");
+                bbq_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                bbq_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("bbq")){
+                selectedRestaurants.remove("bbq");
+                bbq_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                bbq_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+
+        }else if(v.getId() == thai_btn.getId()){
+
+
+            if(!selectedRestaurants.contains("thai")){
+                selectedRestaurants.add("thai");
+                thai_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                thai_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("thai")){
+                selectedRestaurants.remove("thai");
+                thai_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                thai_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+
+        }else if(v.getId() == fruits_btn.getId()){
+
+            if(!selectedRestaurants.contains("fruits")){
+                selectedRestaurants.add("fruits");
+                fruits_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                fruits_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("fruits")){
+                selectedRestaurants.remove("fruits");
+                fruits_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                fruits_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+
+        }else if(v.getId() == korean_btn.getId()){
+
+            if(!selectedRestaurants.contains("korean")){
+                selectedRestaurants.add("korean");
+                korean_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                korean_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("korean")){
+                selectedRestaurants.remove("korean");
+                korean_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                korean_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+
+        }else if(v.getId() == vietnamese_btn.getId()){
+
+            if(!selectedRestaurants.contains("vietnamese")){
+                selectedRestaurants.add("vietnamese");
+                vietnamese_btn.setBackgroundColor(getResources().getColor(R.color.grey));
+                vietnamese_btn.setTextColor(getResources().getColor(R.color.red_dark));
+            }else if(selectedRestaurants.contains("vietnamese")){
+                selectedRestaurants.remove("vietnamese");
+                vietnamese_btn.setBackgroundColor(getResources().getColor(R.color.red_dark));
+                vietnamese_btn.setTextColor(getResources().getColor(R.color.white));
+            }
+
+        }else if(v.getId() == skip_tv.getId()){
+            dialog.dismiss();
+
+        }else if(v.getId() == next_tv.getId()){
+            dialog.dismiss();
         }
     }
 
     public void SearchRestaurants(){
         search_text_st = search_text.getText().toString();
         if(search_text_st.equals("")){
-            Toast.makeText(getActivity(), "Empty String", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Please enter keyword", Toast.LENGTH_SHORT).show();
         }else{
             for (int i = 0 ; i < StorageHelper.restaurants_generic_list.size();i++){
                 StorageHelper.backup_restaurant_list.add(StorageHelper.restaurants_generic_list.get(i));
@@ -504,7 +795,6 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             getAllRestaurants();
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -517,8 +807,12 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
                         Object client = null;
                         if(client == null){
                         }
+
+                        checkGPS();
+
                         mMap.setMyLocationEnabled(true);
                     }
+                    mapFragment.getMapAsync(this);
                     getLastKnownLocation();
                     getAllRestaurants();
                 }
@@ -540,9 +834,33 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
             if (shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION)){
                 requestPermissions(new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION },REQUEST_LOCATION_CODE);
              } else {
-               requestPermissions(new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION },REQUEST_LOCATION_CODE);
+                requestPermissions(new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION },REQUEST_LOCATION_CODE);
              }
+        } else {
+            checkGPS();
+        }
+    }
 
+    public void checkGPS(){
+        int off = 0;
+        try {
+            off = Settings.Secure.getInt(getActivity().getContentResolver(), Settings.Secure.LOCATION_MODE);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        if(off==0){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("GPS Disabled");
+            builder.setMessage("Gps is disabled, in order to use the application properly you need to enable GPS of your device");
+            builder.setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(onGPS);
+                }
+            });
+            Dialog dialog = builder.create();
+            dialog.show();
         }
     }
 
@@ -563,8 +881,8 @@ public class home extends Fragment implements View.OnClickListener, OnMapReadyCa
 
    @Override
     public void onLocationChanged(Location location){
-       double longitude = location.getLongitude();
-       double latitude = location.getLatitude();
+        //StorageHelper.longitude = location.getLongitude();
+        //StorageHelper.latitude = location.getLatitude();
     }
 
     @Override

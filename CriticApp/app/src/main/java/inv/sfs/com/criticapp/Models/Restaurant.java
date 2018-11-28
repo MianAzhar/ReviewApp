@@ -19,12 +19,15 @@ public class Restaurant {
     public String restaurant_name;
     public String vicinity;
     public int avgRating;
+    public float starRating;
     public ParseObject parseObject;
     public List<ParseObject> reviews;
+    public String category;
 
     public Restaurant(){
         reviews = new ArrayList<>();
         parseObject = null;
         avgRating = 0;
+        starRating = 0.0f;
     }
 }

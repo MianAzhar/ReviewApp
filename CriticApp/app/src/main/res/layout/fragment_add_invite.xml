@@ -6,22 +6,115 @@
     android:orientation="vertical">
 
 
+    <ScrollView android:id="@+id/scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_basic_color"
+        android:scrollbars="none">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/app_basic_color"
         android:orientation="vertical">
 
-        <ImageView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/grey"
-            android:layout_gravity="center_horizontal"
-            android:foregroundGravity="center_horizontal"
-            android:id="@+id/select_photo"
-            android:src="@drawable/ic_profile"/>
+            android:orientation="vertical"
+            android:background="@drawable/coupon_bg">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
+                android:text="@string/thank_you"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="20dp"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:hint="Offer"
+                android:layout_marginTop="10dp"
+                android:id="@+id/discount_text_et"
+                android:height="50dp"
+                android:textSize="20dp"
+                android:maxLines="1"
+                android:inputType="text"
+                android:maxLength="10"
+                android:background="@color/white"
+                android:textAlignment="center"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:id="@+id/comments_et"
+                android:maxLength="30"
+                android:maxLines="1"
+                android:inputType="text"
+                android:textSize="20dp"
+                android:textAlignment="center"
+                android:background="@color/white"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:background="@drawable/btn_white_small">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:id="@+id/expiryDate_tv"
+                    android:text="Expires: Feb 28, 2018"
+                    android:textSize="20dp"
+                    android:textColor="@color/choco_color"
+                    android:textAlignment="center"/>
+            </LinearLayout>
 
 
-        <LinearLayout
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="140dp"
+                android:layout_marginRight="140dp"
+                android:layout_marginTop="40dp"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:background="@drawable/btn_white_small">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/coupon_code_tv"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:text="000001"
+                    android:textSize="18dp"
+                    android:textColor="@color/choco_color"
+                    android:textAlignment="center"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <!--<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:orientation="horizontal"
@@ -32,27 +125,26 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:text="Expiration Date"
+                android:text="Discount Text"
                 android:layout_gravity="center_vertical"
                 android:textColor="@color/black"
                 android:paddingLeft="10dp"
                 android:textSize="17dp" />
 
-            <TextView
+            <EditText
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:hint="Select Date"
-                android:id="@+id/select_date"
+                android:id="@+id/discount_text_et"
                 android:textColor="@color/light_text"
-                android:layout_gravity="center_vertical"
-                android:textAlignment="textEnd"
+                android:layout_gravity="start"
+                android:textAlignment="textStart"
                 android:paddingRight="10dp"
                 android:textSize="17dp"/>
-        </LinearLayout>
+        </LinearLayout>-->
 
 
-        <LinearLayout
+        <!--<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:background="@drawable/rounded_edittext_bottom_white"
@@ -68,9 +160,8 @@
                 android:paddingLeft="5dp"
                 android:id="@+id/comments_et"
                 android:lines="5"
-                android:hint="comments" />
-        </LinearLayout>
-
+                android:hint="Instructions" />
+        </LinearLayout>-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -84,14 +175,15 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:text="Send Invite"
+                android:text="Create Coupon"
                 android:textColor="@color/white"
                 android:id="@+id/send_invite"
                 android:textSize="20dp"
+                android:background="@drawable/btn_brown"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:layout_alignParentBottom="true"
-                android:background="@drawable/standard_btn"/>
+                android:layout_alignParentBottom="true"/>
         </LinearLayout>
     </LinearLayout>
+    </ScrollView>
 </LinearLayout>

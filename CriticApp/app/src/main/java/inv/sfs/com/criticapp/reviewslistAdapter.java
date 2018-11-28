@@ -45,8 +45,8 @@ public class reviewslistAdapter  extends ArrayAdapter<Restaurant>{
         try {
             avgRating.setText(String.valueOf(restaurants_list_.get(position).avgRating));
             name.setText(restaurants_list_.get(position).restaurant_name);
-            float star = ((float)restaurants_list_.get(position).avgRating) / 90 * 5;
-            rating_bar.setRating(star);
+            //float star = ((float)restaurants_list_.get(position).avgRating) / 90 * 5;
+            rating_bar.setRating(restaurants_list_.get(position).starRating);
             reviews_count.setText(String.valueOf(restaurants_list_.get(position).reviews.size()));
             if(restaurants_list_.get(position).vicinity.length() >50){
                 restaurants_list_.get(position).vicinity = restaurants_list_.get(position).vicinity.substring(0,50);

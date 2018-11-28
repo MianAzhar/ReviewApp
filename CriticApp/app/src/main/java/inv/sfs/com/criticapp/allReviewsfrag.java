@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import inv.sfs.com.criticapp.Models.Restaurant;
 public class allReviewsfrag extends Fragment {
 
     ListView reviews_list;
+    TextView gpserrortv;
     public ArrayList<String> restaurant_name =new ArrayList<String>();
     public ArrayList<String> address =new ArrayList<String>();
     public ArrayList<Restaurant> top10SortedRestaurants;
@@ -54,11 +56,31 @@ public class allReviewsfrag extends Fragment {
 
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("The Critic View");
+        actionBar.setTitle("The Critics View");
 
         top10SortedRestaurants = StorageHelper.sortforTop10(StorageHelper.restaurants_generic_list);
         reviews_list = (ListView) getView().findViewById(R.id.reviews_list);
-        top10SortedRestaurantsSublist = new ArrayList<Restaurant>(top10SortedRestaurants.subList(0, 10));
+        gpserrortv = (TextView) getView().findViewById(R.id.gpserrortv);
+        if(top10SortedRestaurants.size() > 10){
+
+            try{
+                top10SortedRestaurantsSublist = new ArrayList<Restaurant>(top10SortedRestaurants.subList(0, 10));
+            }catch (Exception e){
+                reviews_list.setVisibility(View.GONE);
+                gpserrortv.setVisibility(View.VISIBLE);
+             }
+        }
+        else{
+
+            try{
+                top10SortedRestaurantsSublist = new ArrayList<Restaurant>(top10SortedRestaurants.subList(0, top10SortedRestaurants.size() - 1));
+             }catch (Exception e){
+                reviews_list.setVisibility(View.GONE);
+                gpserrortv.setVisibility(View.VISIBLE);
+             }
+
+        }
+
         if(StorageHelper.topTen){
             StorageHelper.topTen = false;
             reviewslistAdapter adapter = new reviewslistAdapter(getActivity(), top10SortedRestaurantsSublist);
@@ -91,7 +113,7 @@ public class allReviewsfrag extends Fragment {
 
         menu.clear();
         inflater.inflate(R.menu.main, menu);
-        menu.findItem(R.id.filter).setVisible(true);
+        //menu.findItem(R.id.filter).setVisible(true);
         menu.findItem(R.id.mapView).setVisible(false);
         getActivity().invalidateOptionsMenu();
         super.onCreateOptionsMenu(menu, inflater);

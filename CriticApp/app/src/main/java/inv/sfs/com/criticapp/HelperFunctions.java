@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.parse.ParseUser;
+
 import java.util.ArrayList;
 
 import inv.sfs.com.criticapp.Models.Restaurant;
@@ -22,11 +24,19 @@ import inv.sfs.com.criticapp.Models.Restaurant;
 
 public class HelperFunctions{
 
-    //public static Integer PROXIMITY_RADIUS = 40234; //25 miles
     public static Integer PROXIMITY_RADIUS = 8047; //5 miles
     public static Integer PROXIMITY_RADIUS_ONE_MILE = 1000; //5 miles
+    public static Integer PROXIMITY_RADIUS_25_MILES = 40234; //5 miles
     public static String API_KEY = "AIzaSyB34u6YAzpHBnicod6dsRERE9wZVr7JW4Y";
-    public static String places ="restaurant|cafe|meal_takeaway|meal_delivery";
+    public static String places ="restaurant|cafe|meal_takeaway|meal_delivery|food";
+
+    public static double LEVEL_1 = 0;
+    public static double LEVEL_2 = 0.111111111111111;
+    public static double LEVEL_3 = 0.222222222222222;
+    public static double LEVEL_4 = 0.333333333333334;
+    public static double LEVEL_5 = 0.444444444444445;
+    public static double LEVEL_6 = 0.5;
+    public static double LEVEL_7 = 0.555555555555556;
 
 
 
@@ -35,6 +45,7 @@ public class HelperFunctions{
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlaceUrl.append("location="+latitude+","+longitude);
         googlePlaceUrl.append("&radius="+PROXIMITY_RADIUS);
+        googlePlaceUrl.append("&rankby=distance");
         //googlePlaceUrl.append("&type="+"restaurant");
         googlePlaceUrl.append("&type="+filterString(StorageHelper.filters_list));
         googlePlaceUrl.append("&keyword="+filterString(StorageHelper.filters_list));
@@ -55,14 +66,20 @@ public class HelperFunctions{
 
     public static String getUrl(double latitude,double longitude, String next_pg_token, String searchText, Integer radius){
 
+        if(searchText == null)
+            searchText = "";
+
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlaceUrl.append("location="+latitude+","+longitude);
         googlePlaceUrl.append("&radius="+radius);
         //googlePlaceUrl.append("&type="+"restaurant");
         googlePlaceUrl.append("&type="+places);
-        if(searchText != null){
+        if(!searchText.isEmpty()){
+            searchText = searchText.trim();
+            searchText = searchText.replace(" ", "+");
             googlePlaceUrl.append("&keyword="+searchText);
         }else{
+            //googlePlaceUrl.append("&type="+places);
             googlePlaceUrl.append("&keyword="+places);
         }
 
@@ -116,5 +133,35 @@ public class HelperFunctions{
             return restaurants_searched_list;
         }
 
+    }
+
+    public static double getSimpleRating(double rating){
+        return Math.floor(rating);
+    }
+
+    public static double getRankedRating(double rating){
+        if(ParseUser.getCurrentUser() == null)
+            return rating;
+
+        int rank = ParseUser.getCurrentUser().getNumber("rank") == null ? 1 : ParseUser.getCurrentUser().getInt("rank");
+
+        switch (rank){
+            case 1:
+                return LEVEL_1 + rating;
+            case 2:
+                return LEVEL_2 + rating;
+            case 3:
+                return LEVEL_3 + rating;
+            case 4:
+                return LEVEL_4 + rating;
+            case 5:
+                return LEVEL_5 + rating;
+            case 6:
+                return LEVEL_6 + rating;
+            case 7:
+                return LEVEL_7 + rating;
+            default:
+                return rating;
+        }
     }
 }

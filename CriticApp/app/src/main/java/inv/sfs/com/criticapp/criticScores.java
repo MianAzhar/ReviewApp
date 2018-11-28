@@ -126,6 +126,7 @@ public class criticScores extends Fragment {
 
                 StorageHelper.shareReview = true;
                 StorageHelper.uiBlock = true;
+                StorageHelper.isNewReview = false;
                 Bundle bundle = new Bundle();
                 bundle.putString("reataurant_name_st" , fullReviews_list.get(position).userObj.get("name").toString());
                 //bundle.putString("reataurant_name_st" , fullReviews_list.get(position).restaurantObj.get("name").toString());

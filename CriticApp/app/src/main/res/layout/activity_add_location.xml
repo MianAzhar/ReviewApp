@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="inv.sfs.com.criticapp.AddLocationActivity"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/restaurant_name_et"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="10dp"
+            android:inputType="text"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:hint="Restaurant Name"/>
+
+        <EditText
+            android:id="@+id/address_et"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:inputType="textEmailAddress"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:hint="Address"/>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:id="@+id/restaurant_category_sp"
+            android:spinnerMode="dialog"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:autofillHints="@string/forgot_password" />
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            tools:context="inv.sfs.com.criticapp.AddLocationActivity"/>
+
+        <TextView
+            android:id="@+id/warning_tv"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/app_basic_color"
+            android:layout_marginTop="5dp"
+            android:visibility="gone"
+            android:text="Click submit if this is your location, if not then enter correct address above and search again."/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="bottom"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentBottom="true">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Submit"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/white"
+                android:id="@+id/add_restaurant_btn"
+                android:textSize="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/standard_btn"
+                android:visibility="gone"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Search Restaurant"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/white"
+                android:id="@+id/search_restaurant_btn"
+                android:textSize="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/standard_btn"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

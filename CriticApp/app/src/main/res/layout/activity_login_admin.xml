@@ -68,6 +68,15 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/forgot_password"
+        android:id="@+id/forgot_password_tv"
+        android:paddingTop="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="You are not Authorized to Access Owner Portal"
         android:textColor="@color/red"
         android:visibility="gone"

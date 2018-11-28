@@ -1,6 +1,7 @@
 package inv.sfs.com.criticapp;
 
 
+import android.*;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -9,11 +10,20 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -27,6 +37,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
@@ -50,8 +61,12 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
@@ -66,14 +81,14 @@ import static android.app.Activity.RESULT_OK;
  */
 public class addReviewfrag extends Fragment implements View.OnClickListener {
 
-    private static final int SELECT_PICTURE = 1;
+    private static final int SELECT_PICTURE = 1, REQUEST_STORAGE_CODE = 100;
     Uri selectedImageUri;
     ParseFile parse_image_file = null;
     ListView add_review_lv;
     Button instant_btn,submit_instant_zero_btn;
     public ArrayList<String> review_against =new ArrayList<String>();
     public ArrayList<String> comments =new ArrayList<String>();
-    Dialog dialog;
+    Dialog dialog, helpDialog;
     Integer restaurantPosition;
     EditText instant_zero_comment;
     Restaurant restaurant;
@@ -109,6 +124,10 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle("Critic Review");
 
+        StorageHelper.bitmapImageFile = null;
+        StorageHelper.parseImageFile = null;
+
+        review_against.add("null");
         review_against.add("Location");
         review_against.add("Main Greeting");
         review_against.add("Seating Wait Time");
@@ -130,9 +149,8 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         review_against.add("Delivery Time");
         review_against.add("null");
 
-
         //Comments ArrayList//
-
+        comments.add("null");
         comments.add("Comment: Busy, Remote, Small");
         comments.add("Comment: Friendly, Grumpy");
         comments.add("Comment: Short Wait, Long Wait");
@@ -195,6 +213,16 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
             share_lay.setVisibility(View.GONE);
         }
 
+        if(!StorageHelper.uiBlock){
+            helpDialog = new Dialog(getActivity());
+            //helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            helpDialog.setTitle("Scores");
+            helpDialog.setContentView(R.layout.help_dialog);
+            Window window1 = dialog.getWindow();
+            window1.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            helpDialog.show();
+        }
+
         if(StorageHelper.uiBlock){
             instant_btn.setVisibility(View.GONE);
             view_review_extra_lay.setVisibility(View.GONE);
@@ -232,14 +260,26 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         int reviewsListSize = StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.size();
         for(int i = 0; i < reviewsListSize; i++){
             ParseObject userStoredId = (ParseObject) StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.get(i).get("userId");
-            String currentUserId = ParseUser.getCurrentUser().getObjectId().toString();
+            String currentUserId = ParseUser.getCurrentUser().getObjectId();
 
             if(userStoredId.getObjectId().equals(currentUserId)){
-                editMode = true;
-                fullReviewObject = (ParseObject) StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.get(i);
-                Toast.makeText(getContext(), "Edit Mode", Toast.LENGTH_SHORT).show();
-                getFullRatingRestaurant();
-                return;
+                Date date = new Date();
+                ParseObject fullReview = StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.get(i);
+                Date createdAt = fullReview.getCreatedAt();
+
+                long diff = date.getTime() - createdAt.getTime();
+
+                long days = diff / (24 * 60 * 60 * 1000);
+
+                if(days > 1){
+                    continue;
+                } else {
+                    editMode = true;
+                    fullReviewObject = (ParseObject) StorageHelper.restaurants_generic_list.get(restaurantPosition).reviews.get(i);
+                    Toast.makeText(getContext(), "Edit Mode", Toast.LENGTH_SHORT).show();
+                    getFullRatingRestaurant();
+                    return;
+                }
             }
         }
         populateAdapter();
@@ -262,8 +302,8 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
                             tempObject = new Rating();
                             ParseObject parseObject = list.get(i);
                             tempObject.parseObject = parseObject;
-                            tempObject.comment = parseObject.getString("comments").toString();
-                            tempObject.rated_value = (int) parseObject.get("rated_value");
+                            tempObject.comment = parseObject.getString("comments");
+                            tempObject.rated_value = parseObject.getNumber("rated_value").doubleValue();
                             tempObject.title = parseObject.get("title").toString();
                             editRatingObject.add(tempObject);
                         }
@@ -282,6 +322,7 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
                         populateAdapter();
                     }else{
                         Log.d("Result" , "Empty Class");
+                        populateAdapter();
                         pd.dismiss();
                     }
                 } else {
@@ -319,11 +360,10 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
             rest.restaurant_name = obj.getString("name");
             rest.parseObject = obj;
 
-            adapter = new addReviewsAdapter(getActivity(), review_against,comments, rest,true,newList,fullReviewObject);
+            adapter = new addReviewsAdapter(getActivity(), review_against,comments, rest,true,newList,fullReviewObject, this);
 
         }else{
-            adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,newList,fullReviewObject);
-
+            adapter = new addReviewsAdapter(getActivity(), review_against,comments, StorageHelper.restaurants_generic_list.get(restaurantPosition),editMode,newList,fullReviewObject, this);
         }
 
         add_review_lv.setAdapter(adapter);
@@ -337,6 +377,147 @@ public class addReviewfrag extends Fragment implements View.OnClickListener {
         });
     }
 
+    public boolean hasPermission(){
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(getContext(),
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Toast.makeText(getActivity(), "External Storage permission needed. Please allow in App Settings for additional functionality.", Toast.LENGTH_LONG).show();
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_STORAGE_CODE);
+            }
+
+            return false;
+        } else {
+            // Permission has already been granted
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode)
+        {
+            case REQUEST_STORAGE_CODE:
+                if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(getContext(),"Permission Granted. Now you can share your score." , Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Toast.makeText(getContext(),"Permission Denied" , Toast.LENGTH_LONG).show();
+                }
+        }
+    }
+
+    public Uri getImageUri(){
+        if(!hasPermission())
+            return null;
+
+        View rowView = add_review_lv.getChildAt(0);
+        View shareView = rowView.findViewById(R.id.shareLyout);
+        View appLinkView = rowView.findViewById(R.id.appLinkLayout);
+        shareView.setVisibility(View.GONE);
+        //appLinkView.setVisibility(View.VISIBLE);
+        rowView.setDrawingCacheEnabled(true);
+        rowView.buildDrawingCache();
+        Bitmap cache = rowView.getDrawingCache();
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory() + "/criticImage.png");
+            cache.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+
+            shareView.setVisibility(View.VISIBLE);
+            appLinkView.setVisibility(View.GONE);
+
+            File media = new File(Environment.getExternalStorageDirectory() + "/criticImage.png");
+            //Uri uri = Uri.fromFile(media);
+
+            Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".inv.sfs.com.criticapp.provider", media);
+
+            return uri;
+
+        } catch (Exception e) {
+            shareView.setVisibility(View.VISIBLE);
+            // TODO: handle exception
+            e.printStackTrace();
+            return null;
+        } finally {
+            rowView.destroyDrawingCache();
+        }
+    }
+
+    public void convertViewToImage(){
+        if(!hasPermission())
+            return;
+
+        if(!isAppInstalled("com.instagram.android")){
+            Toast.makeText(getContext(), "Instagram is not installed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        View rowView = add_review_lv.getChildAt(0);
+        View shareView = rowView.findViewById(R.id.shareLyout);
+        View appLinkView = rowView.findViewById(R.id.appLinkLayout);
+        shareView.setVisibility(View.GONE);
+        //appLinkView.setVisibility(View.VISIBLE);
+        rowView.setDrawingCacheEnabled(true);
+        rowView.buildDrawingCache();
+        Bitmap cache = rowView.getDrawingCache();
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory() + "/criticImage.png");
+            cache.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+
+            shareView.setVisibility(View.VISIBLE);
+            appLinkView.setVisibility(View.GONE);
+
+            File media = new File(Environment.getExternalStorageDirectory() + "/criticImage.png");
+            //Uri uri = Uri.fromFile(media);
+
+            Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".inv.sfs.com.criticapp.provider", media);
+
+            Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+            shareIntent.setType("image/*");
+            shareIntent.putExtra(Intent.EXTRA_STREAM,uri);
+            shareIntent.putExtra(Intent.EXTRA_TITLE, "The Critics View");
+            shareIntent.setPackage("com.instagram.android");
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(shareIntent);
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        } finally {
+            rowView.destroyDrawingCache();
+        }
+
+    }
+
+    private boolean isAppInstalled(String packageName) {
+        PackageManager pm = getActivity().getPackageManager();
+        boolean installed = false;
+        try {
+            pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+            installed = true;
+        } catch (PackageManager.NameNotFoundException e) {
+            installed = false;
+        }
+        return installed;
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){

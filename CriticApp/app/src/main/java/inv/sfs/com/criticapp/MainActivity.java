@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -18,15 +19,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.Volley;
 import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import inv.sfs.com.criticapp.Models.Constants;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -44,8 +52,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle("The Critics Review");
+        getSupportActionBar().setTitle("The Critics View");
         preference = PrefrencesHelper.getInstance(this);
+
+        StorageHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -60,6 +70,45 @@ public class MainActivity extends AppCompatActivity
         View navigation_header =  navigationView.getHeaderView(0);
         TextView user_name = (TextView) navigation_header.findViewById(R.id.user_name);
         TextView email_add = (TextView) navigation_header.findViewById(R.id.email);
+
+        /*
+        ImageView rankstar1iv = (ImageView) navigation_header.findViewById(R.id.rankstar1iv);
+        ImageView rankstar2iv = (ImageView) navigation_header.findViewById(R.id.rankstar2iv);
+        ImageView rankstar3iv = (ImageView) navigation_header.findViewById(R.id.rankstar3iv);
+        ImageView rankstar4iv = (ImageView) navigation_header.findViewById(R.id.rankstar4iv);
+        ImageView rankstar5iv = (ImageView) navigation_header.findViewById(R.id.rankstar5iv);
+        */
+
+        if(ParseUser.getCurrentUser() != null){
+
+            TextView rank_tv = navigation_header.findViewById(R.id.userRank_tv);
+
+            try {
+                int user_rank = (int) ParseUser.getCurrentUser().get("rank");
+
+                if(user_rank == 1){
+                    rank_tv.setText(R.string.rank_1);
+                }else if(user_rank == 2){
+                    rank_tv.setText(R.string.rank_2);
+                }else if(user_rank == 3){
+                    rank_tv.setText(R.string.rank_3);
+                }else if(user_rank == 4){
+                    rank_tv.setText(R.string.rank_4);
+                }else if(user_rank == 5){
+                    rank_tv.setText(R.string.rank_5);
+                }else if(user_rank == 6){
+                    rank_tv.setText(R.string.rank_6);
+                }else if(user_rank == 7){
+                    rank_tv.setText(R.string.rank_7);
+                }
+            }catch (Exception e){
+                rank_tv.setText(R.string.rank_1);
+             }
+
+        } else {
+            LinearLayout rank_lay = navigation_header.findViewById(R.id.rank_lay);
+            rank_lay.setVisibility(View.GONE);
+        }
 
         try{
             email_add.setText(ParseUser.getCurrentUser().getEmail());
@@ -116,13 +165,13 @@ public class MainActivity extends AppCompatActivity
             my_events.setVisible(false);
 
             MenuItem reports = menu.findItem(R.id.reports);
-            reports.setVisible(true);
+            reports.setVisible(false);
 
             MenuItem score = menu.findItem(R.id.score);
             score.setVisible(true);
 
             MenuItem invite_critics = menu.findItem(R.id.invite_critics);
-            invite_critics.setVisible(true);
+            invite_critics.setVisible(false);
 
             MenuItem logout = menu.findItem(R.id.logout);
             logout.setVisible(true);
@@ -166,20 +215,27 @@ public class MainActivity extends AppCompatActivity
             logout.setVisible(false);
         }
             if(StorageHelper.alternative_login){
+
+                home dashboard_fragment = new home();
+                android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+                trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(Constants.MAP_FRAGMENT);
+
                 StorageHelper.alternative_login = false;
                 StorageHelper.uiBlock = false;
+                StorageHelper.isNewReview = false;
                 Bundle bundle = new Bundle();
                 bundle.putString("position" , StorageHelper.alternative_login_position);
-                addReviewfrag addreview = new addReviewfrag();
+                reviewDetailsfrag addreview = new reviewDetailsfrag();
                 addreview.setArguments(bundle);
-                android.support.v4.app.FragmentTransaction ft = ((AppCompatActivity) this).getSupportFragmentManager()
-                        .beginTransaction();
-                ft.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
+                //android.support.v4.app.FragmentTransaction ft = ((AppCompatActivity) this).getSupportFragmentManager()
+                 //       .beginTransaction();
+                trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
             }else{
                 home dashboard_fragment = new home();
                 android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
-                trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
+                trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(Constants.MAP_FRAGMENT).commit();
             }
+            //finishAffinity();
 
     }
 
@@ -192,6 +248,7 @@ public class MainActivity extends AppCompatActivity
 
                 try {
                     Bitmap bitmapImage =decodeBitmap(selectedImageUri);
+                    //Bitmap bitmapImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                     StorageHelper.bitmapImageFile = bitmapImage;
                     //image_iv.setImageBitmap(bitmapImage);
                     /*event_image_iv.setImageBitmap(bitmapImage);
@@ -202,9 +259,11 @@ public class MainActivity extends AppCompatActivity
                     //--------- Generating Parse File ------------//
 
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    bitmapImage.compress(Bitmap.CompressFormat.PNG, 0, bos);
+                    bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, bos);
                     byte[] bitmapdata = bos.toByteArray();
                     parse_image_file = new ParseFile("loc_image.png", bitmapdata);
+                    //parse_image_file = new ParseFile(new File(selectedImageUri.getPath()));
+                    //parse_image_file.saveInBackground();
                     StorageHelper.parseImageFile =  parse_image_file;
 
                 } catch (FileNotFoundException e){
@@ -212,7 +271,6 @@ public class MainActivity extends AppCompatActivity
                     Log.d("Result" , "Could not load image. Please try again");
                     // Toast.makeText(this, "Could not load image. Please try again.", Toast.LENGTH_SHORT).show();
                 }
-
             }
         }
     }
@@ -224,7 +282,7 @@ public class MainActivity extends AppCompatActivity
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeStream(this.getContentResolver().openInputStream(selectedImage), null, o);
 
-        final int REQUIRED_SIZE = 100;
+        final int REQUIRED_SIZE = 500;
 
         int width_tmp = o.outWidth, height_tmp = o.outHeight;
         int scale = 1;
@@ -314,6 +372,7 @@ public class MainActivity extends AppCompatActivity
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,inviteCritics).addToBackStack(null).commit();
 
+
             /*inviteCriticsfrag addreview = new inviteCriticsfrag();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();*/
@@ -324,6 +383,10 @@ public class MainActivity extends AppCompatActivity
 
         }else if(id == R.id.be_critic){
             if(preference.getBoolObject("user_logged_in")){
+                home dashboard_fragment = new home();
+                android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+                trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
+            }else if(preference.getBoolObject("admin_logged_in")){
                 home dashboard_fragment = new home();
                 android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
                 trans1.replace(R.id.frame_container,dashboard_fragment).addToBackStack(null).commit();
@@ -339,14 +402,20 @@ public class MainActivity extends AppCompatActivity
             myReviews myreviews = new myReviews();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,myreviews).addToBackStack(null).commit();
+
         }else if(id == R.id.reports){
             reports Reports = new reports();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,Reports).addToBackStack(null).commit();
         }else if(id == R.id.score){
+            myCriticReviewsUpdated myreviews = new myCriticReviewsUpdated();
+            android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
+            trans1.replace(R.id.frame_container,myreviews).addToBackStack(null).commit();
+            /*
             criticScores scores = new criticScores();
             android.support.v4.app.FragmentTransaction trans1 = this.getSupportFragmentManager().beginTransaction();
             trans1.replace(R.id.frame_container,scores).addToBackStack(null).commit();
+            */
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

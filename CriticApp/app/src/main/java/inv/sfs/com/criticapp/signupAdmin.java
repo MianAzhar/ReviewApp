@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
+import java.util.Calendar;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
@@ -37,6 +39,10 @@ import inv.sfs.com.criticapp.Models.Restaurant;
 
 public class signupAdmin extends AppCompatActivity implements View.OnClickListener{
 
+    public static int PAYMENT_CODE = 32;
+
+    String customerId;
+    int amountPaid;
 
     EditText ownername_et,email_et, phone_no_et, password_et, confirm_pass_et, location_address_et;
     String ownername_st, email_st, phone_no_st, password_st, confirm_pass_st, location_address_st;
@@ -47,6 +53,8 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
     ParseObject obj;
     PrefrencesHelper preference;
     TextView error_tv;
+    TextView terms_tv, terms_error_tv;
+    CheckBox termscbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,11 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
         password_et = (EditText) findViewById(R.id.password);
         confirm_pass_et = (EditText) findViewById(R.id.confirm_pass);
         location_address_et = (EditText) findViewById(R.id.location_address);
+        terms_tv = (TextView) findViewById(R.id.terms_tv);
+        terms_error_tv = findViewById(R.id.terms_error_tv);
+        termscbox = findViewById(R.id.terms_checked);
+
+        terms_tv.setOnClickListener(this);
 
         preference = PrefrencesHelper.getInstance(this);
         location_address_et = (EditText) findViewById(R.id.location_address);
@@ -116,14 +129,16 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
 
                                 if(parseObject.get("admin") == null){
                                     obj = parseObject;
-                                    createAccount();
+                                    //createAccount();
+                                    getPayment();
                                 }else{
                                     error_tv.setVisibility(View.VISIBLE);
-                                    //location_address_et.setError("This Place Already have Admin");
                                 }
                                 pd.dismiss();
                             } else {
-                                createRestaurant();
+                                obj = null;
+                                //createRestaurant();
+                                getPayment();
                                 Log.d("Result", "Empty");
                                 pd.dismiss();
                             }
@@ -134,11 +149,13 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
                     }
                 });
             }
+        } else if(view.getId() == terms_tv.getId()){
+            Intent i = new Intent(this, termsndConditions.class);
+            startActivity(i);
         }
     }
 
     public void createAccount(){
-
         pd.show();
         final ParseUser user = new ParseUser();
         user.setUsername(email_et.getText().toString());
@@ -148,6 +165,17 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
         user.put("name" , ownername_et.getText().toString());
         user.put("restaurant" , obj);
         user.put("isAdmin" , true);
+        user.put("customerId", customerId);
+        user.put("rank", 1);
+
+        Calendar cal = Calendar.getInstance();
+        if(amountPaid == 10)
+            cal.add(Calendar.MONTH, 1);
+        else
+            cal.add(Calendar.YEAR, 1);
+
+        user.put("subscriptionExpiry", cal.getTime());
+
         user.signUpInBackground(new SignUpCallback(){
             public void done(ParseException e){
                 if (e == null){
@@ -172,21 +200,35 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
         });
     }
 
+
+    public void getPayment(){
+
+        Intent i = new Intent(this, paymentPackages.class);
+        i.putExtra("email", email_et.getText().toString());
+        startActivityForResult(i, PAYMENT_CODE);
+
+    }
+
+
+
     public void createRestaurant(){
         pd.show();
         //----- Add Restaurant ------//
         obj = new ParseObject("Restaurant");
-        obj.put("icon_url", temp_Restaurant.icon_url);
+        if(temp_Restaurant.icon_url != null)
+            obj.put("icon_url", temp_Restaurant.icon_url);
         obj.put("name", temp_Restaurant.restaurant_name);
         obj.put("latitude", temp_Restaurant.latitude);
         obj.put("longitude", temp_Restaurant.longitude);
-        obj.put("place_id", temp_Restaurant.PlaceId);
+        if(temp_Restaurant.PlaceId != null)
+            obj.put("place_id", temp_Restaurant.PlaceId);
         ParseGeoPoint geo = new ParseGeoPoint();
         geo.setLatitude(temp_Restaurant.latitude);
         geo.setLongitude(temp_Restaurant.longitude);
         obj.put("location" , geo);
         obj.put("vicinity" , temp_Restaurant.vicinity);
-        obj.put("id" , temp_Restaurant.ID);
+        if(temp_Restaurant.ID != null)
+            obj.put("id" , temp_Restaurant.ID);
 
         obj.saveInBackground(new SaveCallback(){
             public void done(ParseException e){
@@ -242,7 +284,12 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
             confirm_pass_et.setError("Password Mismatch");
             confirm_pass_et.requestFocus();
             return false;
+        }  else if(!termscbox.isChecked()){
+            terms_error_tv.setVisibility(View.VISIBLE);
+            return false;
         }
+
+        terms_error_tv.setVisibility(View.GONE);
         return true;
     }
 
@@ -261,6 +308,17 @@ public class signupAdmin extends AppCompatActivity implements View.OnClickListen
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
+            }
+        } else if(requestCode == PAYMENT_CODE){
+            if(resultCode == Activity.RESULT_OK){
+                customerId = data.getStringExtra("customerId");
+                amountPaid = data.getIntExtra("amount", 0);
+
+                if(obj == null){
+                    createRestaurant();
+                } else {
+                    createAccount();
+                }
             }
         }
     }

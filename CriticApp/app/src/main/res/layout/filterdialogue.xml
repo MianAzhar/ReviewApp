@@ -66,6 +66,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/rating_tv"
             android:text="Rating Filter"
             android:layout_marginTop="20dp"
             android:textSize="20dp"
@@ -76,6 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:id="@+id/ratingbar_layout"
             android:layout_marginBottom="10dp"
             android:weightSum="1">
 
@@ -147,7 +149,7 @@
             android:layout_marginRight="15dp"
             android:text="Filter"
             android:textColor="@color/white"
-            android:id="@+id/signup"
+            android:id="@+id/filter_btn"
             android:textSize="20dp"
             android:layout_marginBottom="30dp"
             android:background="@drawable/standard_btn"/>

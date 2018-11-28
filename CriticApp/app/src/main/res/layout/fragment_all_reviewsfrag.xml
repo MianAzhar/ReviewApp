@@ -12,4 +12,15 @@
         android:id="@+id/reviews_list">
     </ListView>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/gpserrortv"
+        android:textSize="20dp"
+        android:text="No Restaurant To show!"
+        android:visibility="gone"
+        android:layout_marginTop="200dp"
+        android:textAlignment="center"
+        android:textColor="@color/app_basic_color" />
+
 </LinearLayout>

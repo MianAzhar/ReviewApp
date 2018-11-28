@@ -68,26 +68,79 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/invite_message_tv"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:layout_marginTop="10dp"
         android:textColor="@color/black"
-        android:text="You are Invited to get Discount"
+        android:text="We invite you to give us a review and as a reward for your review we are offering"
         android:textSize="19dp"
         android:textStyle="bold"
         android:textAlignment="center"/>
 
-    <!--<TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:weightSum="1"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:gravity="center"
+            android:background="@drawable/coupon_left"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAlignment="center"
+                android:id="@+id/discountText_tv"
+                android:textColor="@color/white"
+                android:textSize="30dp"
+                android:text="FREE"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:background="@drawable/coupon_right"
+            android:id="@+id/discount_lay"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="23dp"
+                android:id="@+id/promotionText_tv"
+                android:foregroundGravity="center"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:text="Non Alcoholic drink with meal purchase"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:layout_marginTop="10dp"
         android:textColor="@color/black"
-        android:text="Start Time 7:30PM"
+        android:text="Offer Expires:"
         android:textSize="19dp"
         android:textStyle="bold"
-        android:textAlignment="center"/>-->
+        android:textAlignment="center"/>
 
     <LinearLayout
         android:layout_width="80dp"
@@ -96,7 +149,7 @@
         android:background="@drawable/calendar"
         android:layout_gravity="center_horizontal"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="20dp">
+        android:layout_marginRight="10dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -131,7 +184,6 @@
         android:id="@+id/rsvp_text"
         android:textAlignment="center"/>
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -142,14 +194,14 @@
         android:layout_marginTop="5dp">
 
         <Button
+            android:id="@+id/rsvp"
             android:layout_width="0dp"
             android:layout_height="50dp"
-            android:text="RSVP"
-            android:textColor="@color/white"
-            android:id="@+id/rsvp"
-            android:textSize="20dp"
             android:layout_weight="0.5"
-            android:background="@drawable/button_bg"/>
+            android:background="@drawable/button_bg"
+            android:text="Be a Critic"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
 
         <Button
             android:layout_width="0dp"
@@ -165,6 +217,8 @@
     </LinearLayout>
 
 
+
+    <!--
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -190,4 +244,5 @@
             android:layout_weight="1.5"/>
 
     </LinearLayout>
+    -->
 </LinearLayout>

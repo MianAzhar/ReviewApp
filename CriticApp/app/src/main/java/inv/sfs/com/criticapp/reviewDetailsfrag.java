@@ -29,15 +29,18 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.Parse;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
@@ -55,11 +58,13 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
     LinearLayout container_layout, be_a_critic_lay;
     RatingBar rating_bar;
     PrefrencesHelper preference;
-    ProgressBar progress;
+    SeekBar seekBar;
     Dialog dialog;
-    Button start_date, end_date;
+    Button start_date, end_date, filter_btn;
     Integer position;
-    public List<ParseObject> fullreviews_ParseObjects;
+    Date startDate, endDate;
+    int ratingFiler = -1;
+    public ArrayList<ParseObject> fullreviews_ParseObjects;
     //public List<Integer> ratingsCount = Arrays.asList(0, 0, 0, 0, 0);
     public List<Integer> ratingsCount = new ArrayList<>();
 
@@ -94,9 +99,24 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         position = Integer.valueOf(getArguments().getString("position"));
-        fullreviews_ParseObjects = StorageHelper.restaurants_generic_list.get(position).reviews;
+        fullreviews_ParseObjects = (ArrayList<ParseObject>) StorageHelper.restaurants_generic_list.get(position).reviews;
 
-        //Getting Over all Ratings..
+        seekBar = dialog.findViewById(R.id.seekBar);
+
+        start_date = dialog.findViewById(R.id.start_date);
+        end_date = dialog.findViewById(R.id.end_date);
+        filter_btn = dialog.findViewById(R.id.filter_btn);
+
+        start_date.setOnClickListener(this);
+        end_date.setOnClickListener(this);
+        filter_btn.setOnClickListener(this);
+
+        reviews_lv = getView().findViewById(R.id.reviews);
+
+        startDate = new Date();
+        startDate.setDate(1);
+        endDate = new Date();
+
         for(int i = 0; i < fullreviews_ParseObjects.size(); i++ ){
 
             if(fullreviews_ParseObjects.get(i).get("overall_Rating") != null){
@@ -119,24 +139,29 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
             }
         }
 
+        getRatingCount();
+    }
 
-        start_date = (Button) dialog.findViewById(R.id.start_date);
-        end_date = (Button) dialog.findViewById(R.id.end_date);
-        start_date.setOnClickListener(this);
-        end_date.setOnClickListener(this);
-        //progress = (ProgressBar) getView().findViewById(R.id.progress);
-        //be_a_critic_lay = (LinearLayout) getView().findViewById(R.id.be_a_critic_lay);
-        //be_a_critic_lay.setOnClickListener(this);
-        reviews_lv = (ListView)  getView().findViewById(R.id.reviews);
-       // container_layout = (LinearLayout) getView().findViewById(R.id.container_layout);
-       // container_layout.getBackground().setAlpha(80);
+    public void getRatingCount(){
+        fullreviews_ParseObjects = new ArrayList<>();
 
-        //progress.setScaleY(3f);
+        if(ratingFiler == -1){
+            fullreviews_ParseObjects = (ArrayList<ParseObject>) StorageHelper.restaurants_generic_list.get(position).reviews;
+        } else {
+            for(int i = 0; i < StorageHelper.restaurants_generic_list.get(position).reviews.size(); i++){
+                ParseObject temp = StorageHelper.restaurants_generic_list.get(position).reviews.get(i);
 
-        //rating_bar = (RatingBar) getView().findViewById(R.id.rating_bar);
-        //rating_bar.setRating((float) 3.5);
-        reviews_lv = (ListView) getView().findViewById(R.id.reviews);
-        resturantreviewAdapter adapter = new resturantreviewAdapter(getActivity(), restaurant_name, rating_value, comments, position, ratingsCount);
+                if(temp.getCreatedAt().after(startDate) && temp.getCreatedAt().before(endDate) && temp.getInt("overall_Rating") == ratingFiler ){
+                    fullreviews_ParseObjects.add(temp);
+                }
+            }
+        }
+
+        populateAdapter();
+    }
+
+    public void populateAdapter(){
+        resturantreviewAdapter adapter = new resturantreviewAdapter(getActivity(), restaurant_name, rating_value, fullreviews_ParseObjects, position, ratingsCount);
         reviews_lv.setAdapter(adapter);
         reviews_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -148,6 +173,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
                     // TODO Auto-generated method stub
                     String pos1 = String.valueOf(position);
                     StorageHelper.uiBlock = true;
+                    StorageHelper.isNewReview = false;
                     Bundle bundle = new Bundle();
 
                     ParseObject tempFullReview = StorageHelper.restaurants_generic_list.get(position).reviews.get(pos - 1);
@@ -208,15 +234,7 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View v){
-       /* if(v.getId() == be_a_critic_lay.getId()){
-            if(preference.getBoolObject("user_logged_in")){
-                addReviewfrag addreview = new addReviewfrag();
-                android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
-                trans1.replace(R.id.frame_container,addreview).addToBackStack(null).commit();
-            }else{
-                Toast.makeText(getActivity(), "Please Login To Add Review", Toast.LENGTH_SHORT).show();
-            }
-        }else*/if(v.getId() == start_date.getId()){
+        if(v.getId() == start_date.getId()){
             Calendar mcurrentTime = Calendar.getInstance();
             int year = mcurrentTime.get(Calendar.YEAR);
             int month = mcurrentTime.get(Calendar.MONTH);
@@ -224,8 +242,10 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
             DatePickerDialog mdiDialog =new DatePickerDialog(getActivity(),new DatePickerDialog.OnDateSetListener(){
                 @Override
                 public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                    //Toast.makeText(getActivity(),year+ " "+monthOfYear+" "+dayOfMonth, Toast.LENGTH_LONG).show();
-                    start_date.setText(year+"/" +monthOfYear+"/"+dayOfMonth);
+                    start_date.setText(year+"/" + (monthOfYear + 1) +"/"+dayOfMonth);
+                    startDate.setDate(dayOfMonth);
+                    startDate.setMonth(monthOfYear);
+                    startDate.setYear(year - 1900);
                 }
             }, year, month, date);
             mdiDialog.show();
@@ -237,11 +257,19 @@ public class reviewDetailsfrag extends Fragment implements View.OnClickListener 
             DatePickerDialog mdiDialog =new DatePickerDialog(getActivity(),new DatePickerDialog.OnDateSetListener(){
                 @Override
                 public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                    //Toast.makeText(getActivity(),year+ " "+monthOfYear+" "+dayOfMonth, Toast.LENGTH_LONG).show();
-                    end_date.setText(year+"/" +monthOfYear+"/"+dayOfMonth);
+                    end_date.setText(year+"/" + (monthOfYear + 1) +"/"+dayOfMonth);
+                    endDate.setDate(dayOfMonth);
+                    endDate.setMonth(monthOfYear);
+                    endDate.setYear(year - 1900);
                 }
             }, year, month, date);
             mdiDialog.show();
+        } else if(v.getId() == filter_btn.getId()){
+            dialog.hide();
+
+            ratingFiler = seekBar.getProgress();
+
+            getRatingCount();
         }
     }
 }

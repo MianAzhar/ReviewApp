@@ -30,8 +30,6 @@ import java.util.ArrayList;
  */
 public class inviteCriticsfrag extends Fragment implements View.OnClickListener {
 
-
-
     private ViewPager viewPager;
     private TabsPagerAdapter mAdapter;
     private ActionBar actionBar;

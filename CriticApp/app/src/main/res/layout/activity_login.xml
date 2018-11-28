@@ -66,6 +66,15 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/forgot_password"
+        android:id="@+id/forgot_password_tv"
+        android:paddingTop="10dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -93,6 +102,17 @@
             android:text="Create new Account"
             android:textColor="@color/white"
             android:id="@+id/signup"
+            android:textSize="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/standard_btn"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Login with Facebook"
+            android:textColor="@color/white"
+            android:id="@+id/login_facebook_btn"
             android:textSize="20dp"
             android:layout_marginBottom="40dp"
             android:layout_alignParentBottom="true"

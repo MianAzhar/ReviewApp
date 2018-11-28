@@ -7,17 +7,56 @@
     android:orientation="vertical"
     tools:context="inv.sfs.com.criticapp.searchRestaurant">
 
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/app_basic_color"
         android:orientation="vertical">
 
-        <ListView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/restaurant_select_list">
-        </ListView>
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="clip_vertical"
+            android:weightSum="1"
+            android:orientation="horizontal"
+            android:background="@drawable/search_bg">
 
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.85"
+                android:background="@android:color/transparent"
+                android:paddingLeft="10dp"
+                android:imeOptions="actionSearch"
+                android:hint="Search Restaurant"
+                android:inputType="text"
+                android:id="@+id/search_et"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.15"
+                android:orientation="vertical"
+                android:id="@+id/search_layout">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/search_icon"
+                    android:layout_gravity="clip_vertical"
+                    android:id="@+id/search_icon"/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
+
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/restaurant_select_list">
+    </ListView>
+
 </LinearLayout>

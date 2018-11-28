@@ -69,7 +69,7 @@ public class userInvites extends Fragment{
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("Invites");
+        actionBar.setTitle("Owner Invites");
 
         pd = new TransparentProgressDialog(getContext(), R.drawable.loader);
 
@@ -114,6 +114,7 @@ public class userInvites extends Fragment{
                             notification = new Notification();
                             notification.parseObject = parseObject;
                             notification.promotionId = (ParseObject) parseObject.get("promotionId");
+                            notification.couponNumber = parseObject.getString("couponNumber");
                             notification.isAccepted = (Boolean) parseObject.get("isAccepted");
                             notification.isDeclined = (Boolean) parseObject.get("isDeclined");
                             notification.restaurant.parseObject = parseObject.getParseObject("promotionId").getParseObject("restaurantId");
@@ -182,6 +183,7 @@ public class userInvites extends Fragment{
                 StorageHelper.notificationTempObj.isDeclined = notifications_list.get(position).isDeclined;
                 StorageHelper.notificationTempObj.isAccepted = notifications_list.get(position).isAccepted;
                 StorageHelper.notificationTempObj.parseObject = notifications_list.get(position).parseObject;
+                StorageHelper.notificationTempObj.couponNumber = notifications_list.get(position).couponNumber;
 
                 java.util.Calendar calender_obj = StorageHelper.toCalendar((Date) notifications_list.get(position).promotionId.get("expirationDate"));
                 String Month = Integer.toString(calender_obj.get(java.util.Calendar.MONTH));
@@ -194,13 +196,23 @@ public class userInvites extends Fragment{
                 bundle.putString("avgRating", String.valueOf(notifications_list.get(position).restaurant.avgRating));
                 bundle.putString("month", StorageHelper.convet_month_shortform(StorageHelper.convet_month(Month)));
                 bundle.putString("day", Day);
+                bundle.putString("discountText", notifications_list.get(position).promotionId.getString("discountText"));
+                bundle.putString("promotionText", notifications_list.get(position).promotionId.getString("promotionText"));
                 StorageHelper.restaurant_TempObj =  notifications_list.get(position).restaurant.parseObject;
 
-                userIvitesDetailsfrag userinvitedetails = new userIvitesDetailsfrag();
-                android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
-                userinvitedetails.setArguments(bundle);
-                trans1.replace(R.id.frame_container,userinvitedetails).addToBackStack(null).commit();
+                if(StorageHelper.notificationTempObj.isAccepted == null)
+                    StorageHelper.notificationTempObj.isAccepted = false;
 
+                if(StorageHelper.notificationTempObj.isAccepted){
+                    badgeDetails badgedetails = new badgeDetails();
+                    android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
+                    trans1.replace(R.id.frame_container,badgedetails).addToBackStack(null).commit();
+                } else {
+                    userIvitesDetailsfrag userinvitedetails = new userIvitesDetailsfrag();
+                    android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
+                    userinvitedetails.setArguments(bundle);
+                    trans1.replace(R.id.frame_container,userinvitedetails).addToBackStack(null).commit();
+                }
             }
         });
     }
@@ -211,7 +223,7 @@ public class userInvites extends Fragment{
 
         menu.clear();
         inflater.inflate(R.menu.main, menu);
-        menu.findItem(R.id.invite_critics).setVisible(true);
+        menu.findItem(R.id.invite_critics).setVisible(false);
         getActivity().invalidateOptionsMenu();
         super.onCreateOptionsMenu(menu, inflater);
     }

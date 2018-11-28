@@ -29,7 +29,7 @@
                 android:background="@android:color/transparent"
                 android:paddingLeft="10dp"
                 android:imeOptions="actionSearch"
-                android:hint="Search Text"
+                android:hint="Search Restaurant"
                 android:inputType="text"
                 android:id="@+id/search_text"/>
 

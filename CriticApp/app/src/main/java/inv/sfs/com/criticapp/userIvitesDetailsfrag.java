@@ -28,6 +28,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.squareup.picasso.Picasso;
 
+import java.util.Date;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.Notification;
@@ -39,13 +40,14 @@ import inv.sfs.com.criticapp.Models.Restaurant;
  */
 public class userIvitesDetailsfrag extends Fragment implements View.OnClickListener{
 
-    TextView name_tv,address_tv,avgRating_tv,custom_month,custom_date,promo_text,rsvp_text;
+    TextView name_tv,address_tv,avgRating_tv,custom_month,custom_date,rsvp_text, discountText_tv, promotionText_tv;
+    TextView invite_message_tv;
     Button rsvp_btn, decline_btn;
     TransparentProgressDialog pd;
     Boolean alreadyGivenReview = false;
     Dialog dialog;
     Button add_review,cancel;
-    ImageView promo_image;
+
     LinearLayout buttons_containor;
 
     public userIvitesDetailsfrag(){
@@ -57,7 +59,26 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_user_ivites_detailsfrag, container, false);
+        View view = inflater.inflate(R.layout.fragment_user_ivites_detailsfrag, container, false);
+
+        decline_btn = view.findViewById(R.id.decline);
+        rsvp_btn = view.findViewById(R.id.rsvp);
+        decline_btn.setOnClickListener(this);
+        rsvp_btn.setOnClickListener(this);
+
+        pd = new TransparentProgressDialog(getContext(), R.drawable.loader);
+        name_tv = view.findViewById(R.id.name);
+        address_tv = view.findViewById(R.id.address);
+        avgRating_tv = view.findViewById(R.id.avgRating);
+        custom_month = view.findViewById(R.id.custom_month);
+        custom_date = view.findViewById(R.id.custom_date);
+
+        discountText_tv = view.findViewById(R.id.discountText_tv);
+        promotionText_tv = view.findViewById(R.id.promotionText_tv);
+
+        invite_message_tv = view.findViewById(R.id.invite_message_tv);
+
+        return view;
     }
 
     @Override
@@ -65,7 +86,7 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
         super.onActivityCreated(savedInstanceState);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle("User Invites");
+        actionBar.setTitle("Restaurant Invites");
 
         buttons_containor = (LinearLayout) getView().findViewById(R.id.buttons_containor);
         rsvp_text = (TextView) getView().findViewById(R.id.rsvp_text);
@@ -76,25 +97,12 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
         dialog.setContentView(R.layout.givereviewdialogue);
         Window window = dialog.getWindow();
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+
         add_review = (Button) dialog.getWindow().findViewById(R.id.add_review);
         add_review.setOnClickListener(this);
 
         cancel = (Button) dialog.getWindow().findViewById(R.id.cancel);
         cancel.setOnClickListener(this);
-
-        decline_btn = (Button) getView().findViewById(R.id.decline);
-        rsvp_btn = (Button) getView().findViewById(R.id.rsvp);
-        decline_btn.setOnClickListener(this);
-        rsvp_btn.setOnClickListener(this);
-
-        pd = new TransparentProgressDialog(getContext(), R.drawable.loader);
-        name_tv = (TextView) getView().findViewById(R.id.name);
-        address_tv = (TextView) getView().findViewById(R.id.address);
-        avgRating_tv = (TextView) getView().findViewById(R.id.avgRating);
-        custom_month = (TextView) getView().findViewById(R.id.custom_month);
-        custom_date = (TextView) getView().findViewById(R.id.custom_date);
-        promo_text = (TextView) getView().findViewById(R.id.promo_text);
-        promo_image = (ImageView) getView().findViewById(R.id.promo_image);
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
@@ -104,11 +112,19 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
             String month = bundle.getString("month");
             String day = bundle.getString("day");
 
+            String discountText = bundle.getString("discountText");
+            String promotionText = bundle.getString("promotionText");
+
             name_tv.setText(name);
             address_tv.setText(vicinity);
             avgRating_tv.setText(avgRating);
             custom_month.setText(month);
             custom_date.setText(day);
+
+            discountText_tv.setText(discountText);
+            promotionText_tv.setText(promotionText);
+
+            //invite_message_tv.setText("We invite you to give us a review and as a reward for your review we are offering " + discountText);
         }
 
         try{
@@ -132,11 +148,18 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
                 try {
                     StorageHelper.notificationTempObj.parseObject.put("isAccepted" ,true);
                     StorageHelper.notificationTempObj.parseObject.put("isDeclined" ,false);
-                    StorageHelper.notificationTempObj.parseObject.save();
+                    StorageHelper.notificationTempObj.parseObject.saveInBackground();
                     buttons_containor.setVisibility(View.GONE);
                     rsvp_text.setVisibility(View.GONE);
                     populateFields();
-                } catch (ParseException e) {
+
+                    try{
+                        updateRank();
+                    }catch (Exception e){
+                    }
+
+
+                } catch (Exception e){
                     e.printStackTrace();
                 }
             }else{
@@ -153,7 +176,7 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
                 StorageHelper.notificationTempObj.parseObject.put("isAccepted" ,false);
                 StorageHelper.notificationTempObj.parseObject.put("isDeclined" ,true);
                 StorageHelper.notificationTempObj.parseObject.save();
-               //getActivity().getFragmentManager().beginTransaction().remove(this).commit();
+                //getActivity().getFragmentManager().beginTransaction().remove(this).commit();
                 //getActivity().getFragmentManager().popBackStack();
                 getActivity().getSupportFragmentManager().popBackStack();
 
@@ -175,8 +198,30 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
             public void done(List<ParseObject> list, ParseException e){
                 if (e == null){
                     if (!list.isEmpty()){
-                        Toast.makeText(getActivity(), "Already Given Review Against This Rest", Toast.LENGTH_SHORT).show();
-                        alreadyGivenReview = true;
+                        for(int i = 0; i < list.size(); i++){
+                            ParseObject obj = list.get(i);
+                            Date date = new Date();
+
+                            Date createdAt = obj.getCreatedAt();
+
+                            long diff = date.getTime() - createdAt.getTime();
+
+                            long days = diff / (24 * 60 * 60 * 1000);
+
+                            if(days > 1){
+                                continue;
+                            } else {
+                                if(getActivity() != null){
+                                    Toast.makeText(getContext(), "Already Given Review Against This Rest", Toast.LENGTH_SHORT).show();
+                                    alreadyGivenReview = true;
+                                }
+                                pd.dismiss();
+                                return;
+                            }
+                        }
+
+                        Toast.makeText(getActivity(), "Not Given Review Against This Rest", Toast.LENGTH_SHORT).show();
+                        alreadyGivenReview = false;
                         pd.dismiss();
                     } else{
                         alreadyGivenReview = false;
@@ -193,21 +238,24 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
     }
 
     public void populateFields(){
-        promo_text.setText(StorageHelper.notificationTempObj.promotionId.getString("promotionText"));
 
+        badgeDetails badgedetails = new badgeDetails();
+        android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
+        trans1.replace(R.id.frame_container,badgedetails).addToBackStack(null).commit();
+
+        //promo_text.setText(StorageHelper.notificationTempObj.promotionId.getString("promotionText"));
+        /*
         try{
             if(StorageHelper.notificationTempObj.promotionId.getParseFile("promotionImage").getUrl() != null){
                 Picasso.with(getActivity())
                         .load(StorageHelper.notificationTempObj.promotionId.getParseFile("promotionImage").getUrl())
                         .fit()
                         .into(promo_image);
-               /* FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(500, 500);
-                layoutParams.gravity = Gravity.CENTER;
-                profile_img.setLayoutParams(layoutParams);*/
             }
 
         }catch (Exception e){
         }
+        */
     }
 
     public void movetoAddReviewFragment(){
@@ -228,6 +276,7 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
         if(contain){
             StorageHelper.backtoUserInvites = true;
             StorageHelper.uiBlock = false;
+            StorageHelper.isNewReview = false;
             Bundle bundle = new Bundle();
             addReviewfrag addreview = new addReviewfrag();
             bundle.putString("position" , String.valueOf(position));
@@ -243,8 +292,8 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
             tempRestaurant.parseObject = StorageHelper.restaurant_TempObj;
             StorageHelper.restaurants_generic_list.add(tempRestaurant);
 
-
             StorageHelper.uiBlock = false;
+            StorageHelper.isNewReview = false;
             Bundle bundle = new Bundle();
             addReviewfrag addreview = new addReviewfrag();
             bundle.putString("position" , String.valueOf( StorageHelper.restaurants_generic_list.size()-1));
@@ -255,4 +304,56 @@ public class userIvitesDetailsfrag extends Fragment implements View.OnClickListe
         }
 
     }
+
+    public void updateRank(){
+
+        ParseQuery<ParseObject> parseQuery = new ParseQuery<>("Notifications");
+        parseQuery.whereEqualTo("userId", ParseUser.getCurrentUser());
+        parseQuery.whereEqualTo("isAccepted",true);
+        parseQuery.setLimit(1000);
+
+        parseQuery.findInBackground(new FindCallback<ParseObject>(){
+            @Override
+            public void done(List<ParseObject> list, ParseException e){
+                if (e == null){
+                    if (!list.isEmpty()){
+
+                        int user_current_rank = 1;
+                        int updated_rank = 1;
+                            try{
+                                user_current_rank = (int) ParseUser.getCurrentUser().get("rank");
+                                updated_rank = user_current_rank;
+                            }catch (Exception ex){
+                            }
+
+                          if(user_current_rank == 1 && list.size() >= 10){
+                                updated_rank++;
+                          }else if(user_current_rank == 2 && list.size() >= 20){
+                                updated_rank++;
+                          }else if(user_current_rank == 3 && list.size() >= 30){
+                                updated_rank++;
+                          }else if(user_current_rank == 4 && list.size() >= 40){
+                                updated_rank++;
+                          }else if(user_current_rank == 5 && list.size() >= 50){
+                                updated_rank++;
+                         }
+
+                         ParseUser.getCurrentUser().put("rank" ,updated_rank);
+                        try {
+                            ParseUser.getCurrentUser().save();
+                        } catch (ParseException e1) {
+                            e1.printStackTrace();
+                        }
+
+                    } else{
+
+                    }
+                } else{
+                    Log.d("Result", "Wrong");
+                    pd.dismiss();
+                }
+            }
+        });
+    }
+
 }

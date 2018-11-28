@@ -42,7 +42,7 @@
         <item
             android:id="@+id/my_events"
             android:icon="@drawable/my_event"
-            android:title="My Events"/>
+            android:title="My Sent Invites"/>
 
         <item
             android:id="@+id/reports"

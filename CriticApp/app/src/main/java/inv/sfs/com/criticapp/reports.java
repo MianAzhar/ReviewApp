@@ -1,16 +1,30 @@
 package inv.sfs.com.criticapp;
 
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.graphics.Color;
+import android.icu.util.Calendar;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -31,6 +45,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import inv.sfs.com.criticapp.Models.FullReviewModel;
@@ -40,18 +55,27 @@ import inv.sfs.com.criticapp.Models.Rating;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class reports extends Fragment implements OnChartValueSelectedListener{
+public class reports extends Fragment implements OnChartValueSelectedListener, View.OnClickListener{
 
 
     TransparentProgressDialog pd;
     private PieChart mChart;
-    int subTotal = 0;
+    double subTotal = 0;
     public Rating local_rating;
     public ArrayList<Rating> rating_values_lis = new ArrayList<Rating>();
-    public ArrayList<Float> percentages = new ArrayList<Float>();
-    public ArrayList<Integer> ratedValue = new ArrayList<Integer>();
-    public ArrayList<String> review_against =new ArrayList<String>();
+    public ArrayList<Double> percentages = new ArrayList<>();
+    public ArrayList<Double> ratedValue = new ArrayList<>();
+    public ArrayList<String> review_against =new ArrayList<>();
     float total=0;
+
+    Dialog dialog;
+    Button start_date, end_date, filter_btn;
+    LinearLayout ratingbar_layout;
+    Date startDate, endDate;
+    TextView rating_tv;
+
+    public ListView listView;
+    public ReportsAdapter reportsAdapter;
 
     public reports(){
     }
@@ -60,7 +84,14 @@ public class reports extends Fragment implements OnChartValueSelectedListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_reports, container, false);
+
+        setHasOptionsMenu(true);
+
+        View view = inflater.inflate(R.layout.fragment_reports, container, false);
+
+        listView = view.findViewById(R.id.reports_lv);
+
+        return view;
     }
 
     @Override
@@ -70,6 +101,30 @@ public class reports extends Fragment implements OnChartValueSelectedListener{
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle("Reports");
 
+        startDate = new Date();
+        startDate.setDate(1);
+        endDate = new Date();
+
+        dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.filterdialogue);
+        Window window = dialog.getWindow();
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        ratingbar_layout = dialog.findViewById(R.id.ratingbar_layout);
+        ratingbar_layout.setVisibility(View.GONE);
+
+        rating_tv = dialog.findViewById(R.id.rating_tv);
+        rating_tv.setVisibility(View.GONE);
+
+        start_date = dialog.findViewById(R.id.start_date);
+        end_date = dialog.findViewById(R.id.end_date);
+        filter_btn = dialog.findViewById(R.id.filter_btn);
+        filter_btn.setOnClickListener(this);
+        start_date.setOnClickListener(this);
+        end_date.setOnClickListener(this);
+
+        review_against.clear();
 
         // Populating Array....
         review_against.add("Location");
@@ -93,71 +148,91 @@ public class reports extends Fragment implements OnChartValueSelectedListener{
 
 
         pd = new TransparentProgressDialog(getContext(), R.drawable.loader);
-        mChart = (PieChart) getView().findViewById(R.id.chart1);
-        mChart.setUsePercentValues(true);
-        mChart.getDescription().setEnabled(false);
-        mChart.setExtraOffsets(5, 5, 5, 10);
-        mChart.setDragDecelerationFrictionCoef(0.95f);
-        mChart.setDrawHoleEnabled(true);
-        mChart.setHoleColor(Color.RED);
+        //mChart = (PieChart) getView().findViewById(R.id.chart1);
 
-        mChart.setTransparentCircleColor(Color.RED);
-        mChart.setTransparentCircleAlpha(110);
-        mChart.setHoleRadius(40f);
-        mChart.setTransparentCircleRadius(41f);
-        mChart.setDrawCenterText(true);
-        mChart.setRotationAngle(0);
-        mChart.setRotationEnabled(true);
-        mChart.setHighlightPerTapEnabled(true);
-        mChart.setOnChartValueSelectedListener(this);
-        mChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
-
-        Legend l = mChart.getLegend();
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        l.setWordWrapEnabled(true);
-        l.setDrawInside(true);
-        l.setXEntrySpace(7f);
-        l.setYEntrySpace(0f);
-        l.setYOffset(0f);
-
-
-        mChart.setEntryLabelColor(Color.WHITE);
-        mChart.setEntryLabelTextSize(8f);
 
         getRating();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public void onClick(View v){
+        if(v.getId() == start_date.getId()){
+            Calendar mcurrentTime = Calendar.getInstance();
+            int year = mcurrentTime.get(Calendar.YEAR);
+            int month = mcurrentTime.get(Calendar.MONTH);
+            int date = mcurrentTime.get(Calendar.DATE);
+            DatePickerDialog mdiDialog =new DatePickerDialog(getActivity(),new DatePickerDialog.OnDateSetListener(){
+                @Override
+                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                    start_date.setText(year+"/" + (monthOfYear + 1) +"/"+dayOfMonth);
+                    startDate.setDate(dayOfMonth);
+                    startDate.setMonth(monthOfYear);
+                    startDate.setYear(year - 1900);
+                }
+            }, year, month, date);
+            mdiDialog.show();
+        }else if(v.getId() == end_date.getId()){
+            Calendar mcurrentTime = Calendar.getInstance();
+            int year = mcurrentTime.get(Calendar.YEAR);
+            int month = mcurrentTime.get(Calendar.MONTH);
+            int date = mcurrentTime.get(Calendar.DATE);
+            DatePickerDialog mdiDialog =new DatePickerDialog(getActivity(),new DatePickerDialog.OnDateSetListener(){
+                @Override
+                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                    end_date.setText(year+"/" + (monthOfYear + 1) +"/"+dayOfMonth);
+                    endDate.setDate(dayOfMonth);
+                    endDate.setMonth(monthOfYear);
+                    endDate.setYear(year - 1900);
+                }
+            }, year, month, date);
+            mdiDialog.show();
+        } else if(v.getId() == filter_btn.getId()){
+            dialog.hide();
+            getRating();
+        }
+    }
 
     public void getRating(){
 
         pd.show();
         ParseQuery<ParseObject> parseQuery = new ParseQuery<>("Rating");
         parseQuery.whereEqualTo("restaurantId", ParseUser.getCurrentUser().get("restaurant"));
+
+        parseQuery.whereGreaterThanOrEqualTo("createdAt", startDate);
+        parseQuery.whereLessThanOrEqualTo("createdAt", endDate);
+
+        parseQuery.include("userId");
         parseQuery.setLimit(1000);
+
+        rating_values_lis.clear();
 
         parseQuery.findInBackground(new FindCallback<ParseObject>(){
             @Override
             public void done(List<ParseObject> list, ParseException e){
                 if (e == null){
-                    if (!list.isEmpty()){
+                    //if (!list.isEmpty()){
                         for (int i = 0; i < list.size(); i++){
-                            subTotal = list.size() * 5;
+                            //subTotal = list.size() * 5;
                             ParseObject parseObject = list.get(i);
                             local_rating = new Rating();
+                            local_rating.parseObject = parseObject;
                             local_rating.title = parseObject.getString("title");
                             local_rating.rated_value = (int) parseObject.get("rated_value");
                             rating_values_lis.add(local_rating);
                         }
+
+                        StorageHelper.ratingArrayList = rating_values_lis;
+
                         pd.dismiss();
                         getaverageRating();
-                        calculations();
+                        //calculations();
                         //populateAdapter();
+                    /*
                     } else {
                         Log.d("Result", "Empty");
                         pd.dismiss();
-                    }
+                    }*/
                 } else {
                     Log.d("Result", "Wrong");
                     pd.dismiss();
@@ -166,31 +241,64 @@ public class reports extends Fragment implements OnChartValueSelectedListener{
         });
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+
+        menu.clear();
+        inflater.inflate(R.menu.main, menu);
+        menu.findItem(R.id.filter).setVisible(true);
+        getActivity().invalidateOptionsMenu();
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+
+            case android.R.id.home:
+                getActivity().finish();
+                break;
+            case R.id.filter:
+                dialog.show();
+
+                return  true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     public void getaverageRating(){
 
         pd.show();
         ParseQuery<ParseObject> parseQuery = new ParseQuery<>("FullReview");
         parseQuery.whereEqualTo("restaurantId", ParseUser.getCurrentUser().get("restaurant"));
+
+        parseQuery.whereGreaterThanOrEqualTo("createdAt", startDate);
+        parseQuery.whereLessThanOrEqualTo("createdAt", endDate);
+
         parseQuery.setLimit(1000);
 
         parseQuery.findInBackground(new FindCallback<ParseObject>(){
             @Override
             public void done(List<ParseObject> list, ParseException e){
                 if (e == null){
-                    if (!list.isEmpty()){
+                    //if (!list.isEmpty()){
                         int average_total = 0;
                         for (int i = 0; i < list.size(); i++){
                             ParseObject parseObject = list.get(i);
-                            average_total = (int) parseObject.get("averageRating");
+                            average_total += (int) parseObject.get("averageRating");
                         }
                         pd.dismiss();
-                        total = (float) average_total / (float) list.size();
+                        subTotal = average_total;
+                        if(list.size() > 0)
+                            total = (float) average_total / (float) list.size();
+                        else
+                            total = 0;
                         calculations();
+                        /*
                     } else {
                         Log.d("Result", "Empty");
                         pd.dismiss();
-                    }
+                    }*/
                 } else {
                     Log.d("Result", "Wrong");
                     pd.dismiss();
@@ -200,19 +308,57 @@ public class reports extends Fragment implements OnChartValueSelectedListener{
     }
 
     public void calculations(){
+        percentages.clear();
         for(int a = 0; a < 18; a++ ){
-            int tempRtaing = 0;
-            Float percentage;
+            double tempRtaing = 0;
+            double percentage = 0;
+            int count = 0;
             for (int b = 0; b < rating_values_lis.size(); b++){
                if(review_against.get(a).equals(rating_values_lis.get(b).title)){
                    tempRtaing = tempRtaing + rating_values_lis.get(b).rated_value;
+                   count++;
                }
             }
             ratedValue.add(tempRtaing);
-            percentage = Float.valueOf( (float)tempRtaing / (float) subTotal * 100);
+
+            if(count > 0){
+                percentage = tempRtaing / count;
+            }
+
+            /*
+            if(subTotal > 0)
+                percentage = tempRtaing / subTotal * 100;
+            else
+                percentage = 0f;
+            */
             percentages.add(percentage);
         }
-        setData();
+        populateAdapter();
+    }
+
+    private void populateAdapter(){
+        reportsAdapter = new ReportsAdapter(getActivity(), review_against, percentages, total);
+
+        listView.setAdapter(reportsAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if(i == 0)
+                    return;
+
+                Bundle args = new Bundle();
+
+                args.putString("title", review_against.get(i - 1));
+                args.putDouble("percent", percentages.get(i - 1));
+                args.putInt("color", StorageHelper.Colors.get(i - 1));
+
+                ReportsDetailFragment detailFragment = new ReportsDetailFragment();
+                detailFragment.setArguments(args);
+                android.support.v4.app.FragmentTransaction trans1 = getActivity().getSupportFragmentManager().beginTransaction();
+                trans1.replace(R.id.frame_container,detailFragment).addToBackStack(null).commit();
+            }
+        });
     }
 
     private void setData(){
@@ -225,7 +371,7 @@ public class reports extends Fragment implements OnChartValueSelectedListener{
         // NOTE: The order of the entries when being added to the entries array determines their position around the center of
         // the chart.
         for (int i = 0; i < review_against.size(); i++){
-            entries.add(new PieEntry(percentages.get(i),
+            entries.add(new PieEntry(percentages.get(i).floatValue(),
                     review_against.get(i),
                     getResources().getDrawable(R.drawable.star)));
         }
@@ -242,7 +388,9 @@ public class reports extends Fragment implements OnChartValueSelectedListener{
         data.setValueFormatter(new PercentFormatter());
         data.setValueTextSize(8f);
         data.setValueTextColor(Color.WHITE);
-        //data.setValueTypeface(mTfLight);
+
+        data.setDrawValues(false);
+
         mChart.setData(data);
 
         // undo all highlights

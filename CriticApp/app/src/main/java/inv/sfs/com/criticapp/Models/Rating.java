@@ -9,7 +9,7 @@ import com.parse.ParseObject;
 public class Rating {
     public String title;
     public String comment;
-    public int rated_value;
+    public double rated_value;
     public ParseObject parseObject;
 
     public Rating(){

@@ -69,6 +69,7 @@ public class myReviews extends Fragment{
             parseQuery.whereEqualTo("userId", ParseUser.getCurrentUser());
             parseQuery.include("userId");
             parseQuery.include("restaurantId");
+            parseQuery.orderByDescending("createdAt");
             parseQuery.setLimit(1000);
 
             parseQuery.findInBackground(new FindCallback<ParseObject>(){
@@ -125,6 +126,7 @@ public class myReviews extends Fragment{
 
                 StorageHelper.shareReview = true;
                 StorageHelper.uiBlock = true;
+                StorageHelper.isNewReview = false;
                 Bundle bundle = new Bundle();
                 bundle.putString("reataurant_name_st" , fullReviews_list.get(position).restaurantObj.get("name").toString());
                 bundle.putFloat("total_rating_stars_float" , fullReviews_list.get(position).overall_Rating);

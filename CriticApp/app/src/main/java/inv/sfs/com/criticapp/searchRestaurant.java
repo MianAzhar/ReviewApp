@@ -12,11 +12,17 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -38,10 +44,12 @@ import java.util.List;
 import inv.sfs.com.criticapp.Models.FullReviewModel;
 import inv.sfs.com.criticapp.Models.Restaurant;
 
-public class searchRestaurant extends AppCompatActivity {
+public class searchRestaurant extends AppCompatActivity implements View.OnClickListener {
 
 
     ListView restaurant_select_list;
+    EditText search_et;
+    LinearLayout search_lay;
     public static ArrayList<Restaurant> restaurants_list = new ArrayList<Restaurant>();
     TransparentProgressDialog pd;
     HelperFunctions helperfunctions;
@@ -61,6 +69,22 @@ public class searchRestaurant extends AppCompatActivity {
         getSupportActionBar().setTitle("Select Your Restaurant");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        search_et = findViewById(R.id.search_et);
+        search_lay = findViewById(R.id.search_layout);
+
+        search_lay.setOnClickListener(this);
+
+        search_et.setOnEditorActionListener(new TextView.OnEditorActionListener(){
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    callApi();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         helperfunctions = new HelperFunctions();
         pd = new TransparentProgressDialog(this, R.drawable.loader);
@@ -70,6 +94,49 @@ public class searchRestaurant extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        menu.findItem(R.id.add).setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.add:
+                Intent intent = new Intent(this, AddLocationActivity.class);
+                startActivityForResult(intent, 123);
+
+                return  true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 123){
+            if(resultCode == Activity.RESULT_OK){
+                int pos = data.getIntExtra("result" , 0);
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("result",pos);
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
+            }
+
+        }
+
+
+    }
 
     public void getLastKnownLocation(){
         List<String> providers = locationManager.getProviders(true);
@@ -102,13 +169,15 @@ public class searchRestaurant extends AppCompatActivity {
         }
     }
 
-
     public void callApi(){
         restaurants_list.clear();
         StorageHelper.searched_restaurant_list.clear();
         pd.show();
         myrequests = Volley.newRequestQueue(getApplicationContext());
-        String url = helperfunctions.getUrl(latitude, longitude, next_pg_token, searchText,HelperFunctions.PROXIMITY_RADIUS_ONE_MILE);
+
+        searchText = search_et.getText().toString();
+
+        String url = helperfunctions.getUrl(latitude, longitude, next_pg_token, searchText,HelperFunctions.PROXIMITY_RADIUS_25_MILES);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url, new Response.Listener<JSONObject>(){
             @Override
             public void onResponse(JSONObject response){
@@ -116,7 +185,7 @@ public class searchRestaurant extends AppCompatActivity {
                     api_response = response;
                     PlotLocations(response);
                 } catch (JSONException e){
-                    Toast.makeText(getApplicationContext(), "Some Error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Some Error 1", Toast.LENGTH_SHORT).show();
                     pd.dismiss();
                     e.printStackTrace();
                 }
@@ -124,7 +193,7 @@ public class searchRestaurant extends AppCompatActivity {
         }, new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error){
-                Toast.makeText(getApplication(), "Some Error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplication(), "Some Error 2", Toast.LENGTH_SHORT).show();
                 pd.dismiss();
                 Log.e("LOG", error.toString());
             }
@@ -179,6 +248,13 @@ public class searchRestaurant extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view.getId() == search_lay.getId()){
+            callApi();
+        }
     }
 }
 

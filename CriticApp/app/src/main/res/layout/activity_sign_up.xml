@@ -39,6 +39,7 @@
         android:paddingLeft="10dp"
         android:inputType="phone"
         android:layout_marginTop="5dp"
+        android:maxLength="10"
         android:background="@drawable/rounded_edittext_bottom_white"
         android:hint="Phone No" />
 
@@ -67,6 +68,44 @@
         android:background="@drawable/rounded_edittext_bottom_white"
         android:hint="Confirm Password"/>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <CheckBox
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/terms_checked"
+            android:layout_weight="0.08"
+            android:layout_margin="10dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.92"
+            android:id="@+id/terms_tv"
+            android:textColor="@color/com_facebook_blue"
+            android:text="By Registering You will agree to term's and conditions"/>
+     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/terms_error_tv"
+            android:visibility="gone"
+            android:textColor="@color/app_basic_color"
+            android:text="Error: You must agree to terms and conditions."/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

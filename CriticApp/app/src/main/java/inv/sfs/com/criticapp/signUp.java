@@ -7,9 +7,15 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
@@ -22,6 +28,8 @@ public class signUp extends AppCompatActivity implements View.OnClickListener {
     Button register_btn;
     TransparentProgressDialog pd;
     PrefrencesHelper preference;
+    CheckBox termscbox;
+    TextView terms_tv, terms_error_tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +48,20 @@ public class signUp extends AppCompatActivity implements View.OnClickListener {
         password_et = (EditText) findViewById(R.id.password);
         confirm_pass_et = (EditText) findViewById(R.id.confirm_pass);
 
+        terms_tv = (TextView) findViewById(R.id.terms_tv);
+        terms_error_tv = findViewById(R.id.terms_error_tv);
         register_btn = (Button) findViewById(R.id.register);
+        termscbox = (CheckBox) findViewById(R.id.terms_checked);
         register_btn.setOnClickListener(this);
+        terms_tv.setOnClickListener(this);
 
+
+        termscbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // update your model (or other business logic) based on isChecked
+                //Toast.makeText(signUp.this, "Hi", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public boolean onOptionsItemSelected(MenuItem item){
@@ -66,6 +85,8 @@ public class signUp extends AppCompatActivity implements View.OnClickListener {
                 user.setEmail(email_et.getText().toString());
                 user.put("phone" , phone_no_et.getText().toString());
                 user.put("name" , username_et.getText().toString());
+                user.put("rank", 1);
+
                 user.signUpInBackground(new SignUpCallback(){
                     public void done(ParseException e){
                         if (e == null){
@@ -83,8 +104,10 @@ public class signUp extends AppCompatActivity implements View.OnClickListener {
                     }
                 });
             }
+        } else if(v.getId() == terms_tv.getId()){
+            Intent i = new Intent(this, termsndConditions.class);
+            startActivity(i);
         }
-
 
     }
 
@@ -116,7 +139,12 @@ public class signUp extends AppCompatActivity implements View.OnClickListener {
         }else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email_st).matches()) {
             email_et.setError("Invalid Email Address");
             return false;
+        } else if(!termscbox.isChecked()){
+            terms_error_tv.setVisibility(View.VISIBLE);
+            return false;
         }
+
+        terms_error_tv.setVisibility(View.GONE);
         return true;
     }
 

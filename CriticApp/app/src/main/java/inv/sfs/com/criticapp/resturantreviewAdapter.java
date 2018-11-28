@@ -37,24 +37,23 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
     private final Activity context;
     private final ArrayList<String> name_;
     private final ArrayList<Float> rating_value_;
-    public final ArrayList<String> address_;
+    public final ArrayList<ParseObject> reviewsList;
     public final List<Integer> ratingsCount_;
     public final Integer position_;
     public final Restaurant currentRestaurant;
 
     public String reataurant_name_st;
     public String total_rating_st;
-    public float total_rating_stars_float;
+    //public float total_rating_stars_float;
 
 
-    public resturantreviewAdapter(Activity context, ArrayList<String> name ,ArrayList<Float> rating_value,ArrayList<String> address, int position, List<Integer> ratingsCount ) {
+    public resturantreviewAdapter(Activity context, ArrayList<String> name ,ArrayList<Float> rating_value,ArrayList<ParseObject> reviewsList, int position, List<Integer> ratingsCount ) {
         super(context, R.layout.restaurantsreviewlayout, name);
-        // TODO Auto-generated constructor stub
 
         this.context=context;
         this.name_=name;
         this.rating_value_=rating_value;
-        this.address_ = address;
+        this.reviewsList = reviewsList;
         this.position_ = position;
         this.ratingsCount_ = ratingsCount;
         currentRestaurant = StorageHelper.restaurants_generic_list.get(position_);
@@ -62,7 +61,7 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
 
     @Override
     public int getCount(){
-        return currentRestaurant.reviews.size() + 1;
+        return reviewsList.size() + 1;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -86,16 +85,16 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
             TextView criticScore = (TextView)rowView.findViewById(R.id.criticScore);
 
             criticScore.setText(String.valueOf(currentRestaurant.avgRating));
-            float star = ((float)currentRestaurant.avgRating) / 90 * 5;
-            rating_bar_top.setRating(star);
+            //float star = ((float)currentRestaurant.avgRating) / 90 * 5;
+            rating_bar_top.setRating(currentRestaurant.starRating);
             restaurant_name.setText(StorageHelper.restaurants_generic_list.get(position_).restaurant_name);
-            total_rating_stars_float =  star;
+            //total_rating_stars_float =  star;
             reataurant_name_st = StorageHelper.restaurants_generic_list.get(position_).restaurant_name;
             total_rating_st = String.valueOf(currentRestaurant.avgRating);
             String reviews_count;
             try{
-                reviews_count = String.valueOf(currentRestaurant.reviews.size());
-                if(currentRestaurant.reviews.size() == 0){
+                reviews_count = String.valueOf(reviewsList.size());
+                if(reviewsList.size() == 0){
                     container_lay.setVisibility(View.VISIBLE);
                 }else {
                     container_lay.setVisibility(View.GONE);
@@ -159,6 +158,7 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
                     PrefrencesHelper  preference = PrefrencesHelper.getInstance(getContext());
                     if(ParseUser.getCurrentUser() != null){
                         StorageHelper.uiBlock = false;
+                        StorageHelper.isNewReview = false;
                         Bundle bundle = new Bundle();
                         bundle.putString("position" , position_.toString());
                         addReviewfrag addreview = new addReviewfrag();
@@ -186,11 +186,13 @@ public class resturantreviewAdapter  extends ArrayAdapter<String> {
             LinearLayout container_layout = (LinearLayout) rowView.findViewById(R.id.container_layout);
 
             try{
-                    ParseObject review = currentRestaurant.reviews.get(position - 1);
+                    ParseObject review = reviewsList.get(position - 1);
                     ParseObject userObj = review.getParseObject("userId");
                     name.setText(userObj.getString("name"));
-                    float star = ((float)review.getInt("averageRating")) / 90 * 5;
-                    rating_bar.setRating(star);
+                    if(review.getNumber("overall_Rating") != null)
+                        rating_bar.setRating(review.getNumber("overall_Rating").floatValue());
+                    else
+                        rating_bar.setRating(0.0f);
                     comments.setText(review.getString("comments"));
                     score.setText(String.valueOf(review.getInt("averageRating")));
 

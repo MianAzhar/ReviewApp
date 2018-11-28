@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,109 +7,154 @@
     tools:context="inv.sfs.com.criticapp.signupAdmin"
     android:orientation="vertical">
 
-
-    <EditText
-        android:id="@+id/ownername"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="20dp"
-        android:paddingLeft="10dp"
-        android:inputType="text"
-        android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Owner Name"/>
-
-    <EditText
-        android:id="@+id/email"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingLeft="10dp"
-        android:inputType="textEmailAddress"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Email"/>
-
-    <EditText
-        android:id="@+id/phone_no"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:inputType="phone"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Phone No" />
-
-
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:inputType="textPassword"
-        android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Password" />
-
-    <EditText
-        android:id="@+id/confirm_pass"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingLeft="10dp"
-        android:inputType="textPassword"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Confirm Password"/>
-
-    <EditText
-        android:id="@+id/location_address"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:inputType="text"
-        android:paddingLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/rounded_edittext_bottom_white"
-        android:hint="Location Address"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="This Restaurant alreay have an Admin"
-        android:id="@+id/error_tv"
-        android:paddingLeft="10dp"
-        android:visibility="gone"
-        android:textSize="15dp"
-        android:textColor="@color/red"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="bottom"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_alignParentBottom="true">
+        android:orientation="vertical">
 
-        <Button
+        <EditText
+            android:id="@+id/ownername"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="Register Account"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_marginTop="20dp"
-            android:textColor="@color/white"
-            android:id="@+id/register_account_btn"
-            android:textSize="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/standard_btn"/>
+            android:paddingLeft="10dp"
+            android:inputType="text"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:hint="Owner Name"/>
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:inputType="textEmailAddress"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:hint="Email"/>
+
+        <EditText
+            android:id="@+id/phone_no"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:inputType="phone"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:maxLength="10"
+            android:hint="Phone No" />
+
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:inputType="textPassword"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:hint="Password" />
+
+        <EditText
+            android:id="@+id/confirm_pass"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:inputType="textPassword"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:hint="Confirm Password"/>
+
+        <EditText
+            android:id="@+id/location_address"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:inputType="text"
+            android:paddingLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_edittext_bottom_white"
+            android:hint="Location Address"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This Restaurant alreay have an Admin"
+            android:id="@+id/error_tv"
+            android:paddingLeft="10dp"
+            android:visibility="gone"
+            android:textSize="15dp"
+            android:textColor="@color/red"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <CheckBox
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/terms_checked"
+                android:layout_weight="0.08"
+                android:layout_margin="10dp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="0.92"
+                android:id="@+id/terms_tv"
+                android:textColor="@color/com_facebook_blue"
+                android:text="By Registering You will agree to term's and conditions"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/terms_error_tv"
+                android:visibility="gone"
+                android:textColor="@color/app_basic_color"
+                android:text="Error: You must agree to terms and conditions."/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="bottom"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentBottom="true">
+
+            <Button
+                android:id="@+id/register_account_btn"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/standard_btn"
+                android:text="Register Account"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </LinearLayout>
+
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

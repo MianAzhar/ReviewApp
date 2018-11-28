@@ -7,7 +7,14 @@
         android:title="List"
         android:visible="false"
         android:textAllCaps="false"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/delete"
+        android:title="Delete"
+        android:visible="false"
+        android:textAllCaps="false"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/next"
@@ -33,6 +40,13 @@
     <item
         android:id="@+id/done"
         android:title="Done"
+        android:visible="false"
+        android:textAllCaps="false"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/add"
+        android:title="Add"
         android:visible="false"
         android:textAllCaps="false"
         app:showAsAction="ifRoom"/>
